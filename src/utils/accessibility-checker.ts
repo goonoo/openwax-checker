@@ -7,6 +7,7 @@ import {
   checkFrames,
   checkHeadings,
   checkInputLabels,
+  checkPageLang,
 } from './rule';
 
 export interface ImageInfo {
@@ -51,6 +52,12 @@ export interface InputLabelInfo {
   title: string;
   hasLabel: boolean;
   hasTitle: boolean;
+}
+
+export interface PageLangInfo {
+  lang: string;
+  url: string;
+  valid: string;
 }
 
 export async function extractImagesFromPage(
@@ -100,4 +107,11 @@ export async function extractInputLabelsFromPage(
 ): Promise<InputLabelInfo[]> {
   const inputLabels = await page.evaluate(checkInputLabels);
   return inputLabels;
+}
+
+export async function extractPageLangFromPage(
+  page: puppeteer.Page,
+): Promise<PageLangInfo[]> {
+  const pageLangs = await page.evaluate(checkPageLang);
+  return pageLangs;
 }

@@ -281,3 +281,37 @@ export function checkInputLabels() {
     };
   });
 }
+
+export function checkPageLang() {
+  function getAllFrameDocuments(doc: Document): Document[] {
+    const frames = Array.from(doc.querySelectorAll('iframe'));
+    const nestedFrameDocuments = frames.flatMap((frame) => {
+      try {
+        const frameDoc = frame.contentDocument || frame.contentWindow?.document;
+        return frameDoc ? getAllFrameDocuments(frameDoc) : [];
+      } catch {
+        // cross-origin iframe은 접근할 수 없으므로 무시
+        return [];
+      }
+    });
+    return [doc, ...nestedFrameDocuments];
+  }
+
+  return getAllFrameDocuments(document)
+    .map((doc) => {
+      try {
+        const html = doc.documentElement;
+        const lang = html?.getAttribute('lang') || '';
+        const url = doc.location.href || '';
+        const valid = lang ? 'pass' : 'fail';
+        return {
+          lang: lang || '',
+          url,
+          valid,
+        };
+      } catch {
+        return null;
+      }
+    })
+    .filter((item) => item !== null);
+}
