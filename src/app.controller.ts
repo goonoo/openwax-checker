@@ -12,6 +12,8 @@ import {
   FrameInfo,
   extractHeadingsFromPage,
   HeadingInfo,
+  extractInputLabelsFromPage,
+  InputLabelInfo,
 } from './utils/accessibility-checker';
 
 @Controller()
@@ -26,6 +28,7 @@ export class AppController {
       pageTitle: null,
       frames: null,
       headings: null,
+      inputLabels: null,
       url: null,
     };
   }
@@ -39,6 +42,7 @@ export class AppController {
     pageTitle: PageTitleInfo;
     frames: FrameInfo[];
     headings: HeadingInfo[];
+    inputLabels: InputLabelInfo;
     url: string;
   }> {
     if (!url)
@@ -49,6 +53,13 @@ export class AppController {
         pageTitle: { title: '', correct: false },
         frames: [],
         headings: [],
+        inputLabels: {
+          label: '',
+          value: 0,
+          contents: [],
+          validate: false,
+          hidden: false,
+        },
         url: '',
       };
     const browser = await puppeteer.launch();
@@ -61,6 +72,7 @@ export class AppController {
     const pageTitle = await extractPageTitleFromPage(page);
     const frames = await extractFramesFromPage(page);
     const headings = await extractHeadingsFromPage(page);
+    const inputLabels = await extractInputLabelsFromPage(page);
 
     await browser.close();
     return {
@@ -70,6 +82,7 @@ export class AppController {
       pageTitle,
       frames,
       headings,
+      inputLabels,
       url,
     };
   }

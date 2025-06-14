@@ -3,42 +3,56 @@
 // @ts-nocheck
 
 export function checkImages() {
-  return Array.from(document.querySelectorAll('img')).map((img) => {
+  const images = Array.from(document.querySelectorAll('img'));
+  const baseUrl = window.location.href;
+
+  return images.map((img) => {
+    const src = img.getAttribute('src') || '';
+    const absoluteSrc = new URL(src, baseUrl).href;
+
     const style = window.getComputedStyle(img);
     const visible =
       img.offsetParent !== null &&
       style.visibility !== 'hidden' &&
       style.display !== 'none';
     return {
-      src: img.getAttribute('src') || '',
-      alt: img.getAttribute('alt'),
       hidden: !visible,
+      src: absoluteSrc,
+      alt: img.getAttribute('alt'),
     };
   });
 }
 
 export function checkBgImages() {
-  return Array.from(document.querySelectorAll('*'))
+  const elements = Array.from(document.querySelectorAll('*'));
+  const baseUrl = window.location.href;
+
+  function isVisible(element: Element): boolean {
+    const style = window.getComputedStyle(element);
+    return (
+      style.display !== 'none' &&
+      style.visibility !== 'hidden' &&
+      style.opacity !== '0' &&
+      element.getBoundingClientRect().height > 0
+    );
+  }
+
+  return elements
     .filter((el) => {
       const style = window.getComputedStyle(el);
-      return style.backgroundImage && style.backgroundImage !== 'none';
+      return style.backgroundImage !== 'none';
     })
     .map((el) => {
       const style = window.getComputedStyle(el);
-      let url = style.backgroundImage;
-      const match = url.match(/url\(["']?(.*?)["']?\)/);
-      url = match ? match[1] : '';
-      let text = (el as HTMLElement).innerText || '';
-      if (text.length > 100) text = text.slice(0, 100) + '...';
-      const visible =
-        el instanceof HTMLElement &&
-        el.offsetParent !== null &&
-        style.visibility !== 'hidden' &&
-        style.display !== 'none';
+      const bgImage = style.backgroundImage;
+      const urlMatch = bgImage.match(/url\(['"]?([^'"()]+)['"]?\)/);
+      const src = urlMatch ? urlMatch[1] : '';
+      const absoluteSrc = new URL(src, baseUrl).href;
+
       return {
-        src: url,
-        alt: (el as HTMLElement).innerText || null,
-        hidden: !visible,
+        hidden: !isVisible(el),
+        src: absoluteSrc,
+        alt: el.getAttribute('aria-label') || el.getAttribute('title') || '',
       };
     });
 }
@@ -185,4 +199,72 @@ export function checkHeadings() {
       };
     },
   );
+}
+
+export function checkInputLabels() {
+  const inputs = Array.from(
+    document.querySelectorAll(
+      'input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="hidden"]), textarea',
+    ),
+  );
+
+  function isVisible(element: Element): boolean {
+    const style = window.getComputedStyle(element);
+    return (
+      style.display !== 'none' &&
+      style.visibility !== 'hidden' &&
+      style.opacity !== '0' &&
+      element.getBoundingClientRect().height > 0
+    );
+  }
+
+  const results = inputs.map((input) => {
+    const isHidden = !isVisible(input);
+    const element = input.tagName.toLowerCase();
+    const type = input.getAttribute('type') || 'text';
+    const title = input.getAttribute('title') || '';
+
+    // label 연결 확인
+    let hasLabel = false;
+    let hasTitle = false;
+
+    // 1. 연결된 label 확인
+    if (input.id) {
+      const label = document.querySelector(`label[for="${input.id}"]`);
+      if (label) {
+        hasLabel = true;
+      }
+    }
+
+    // 2. 부모 label 확인
+    if (!hasLabel) {
+      const parentLabel = input.closest('label');
+      if (parentLabel) {
+        hasLabel = true;
+      }
+    }
+
+    // 3. title 속성 확인
+    if (title) {
+      hasTitle = true;
+    }
+
+    return {
+      hidden: isHidden,
+      element,
+      type,
+      valid: hasLabel || hasTitle,
+      title: title,
+      hasLabel,
+      hasTitle,
+    };
+  });
+
+  return {
+    label: '입력 필드 라벨',
+    value: results.length,
+    contents: results,
+    validate: results.every((r) => r.valid),
+    hidden: results.every((r) => r.hidden),
+  };
 }

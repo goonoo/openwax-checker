@@ -106,52 +106,54 @@
           <% if (images) { %>
             <% 
               const validImages = images.filter(img => img.alt !== null);
-              const imagePercentage = Math.round((validImages.length / images.length) * 100);
+              const imagePercentage = images.length > 0 ? Math.round((validImages.length / images.length) * 100) : null;
             %>
             <a href="#section-images" class="nav-item">
-              1. 대체 텍스트 (img) - <%= validImages.length %> / <%= images.length %> (<%= imagePercentage %>%)
+              1. 대체 텍스트 (img) - <%= validImages.length %> / <%= images.length %><%= imagePercentage !== null ? ` (${imagePercentage}%)` : '' %>
             </a>
           <% } %>
           
           <% if (bgImages) { %>
-            <% 
-              const validBgImages = bgImages.filter(bg => bg.alt);
-              const bgImagePercentage = Math.round((validBgImages.length / bgImages.length) * 100);
-            %>
             <a href="#section-bg-images" class="nav-item">
-              2. 대체 텍스트 (bg)
+              2. 대체 텍스트 (bg) - <%= bgImages.length %>
             </a>
           <% } %>
           
           <% if (skipNavigations) { %>
             <% 
               const connectedSkipNavs = skipNavigations.filter(skip => skip.connected);
-              const skipNavPercentage = Math.round((connectedSkipNavs.length / skipNavigations.length) * 100);
+              const skipNavPercentage = skipNavigations.length > 0 ? Math.round((connectedSkipNavs.length / skipNavigations.length) * 100) : null;
             %>
             <a href="#section-skip-nav" class="nav-item">
-              3. 건너뛰기 링크 - <%= connectedSkipNavs.length %> / <%= skipNavigations.length %> (<%= skipNavPercentage %>%)
+              3. 건너뛰기 링크 - <%= connectedSkipNavs.length %> / <%= skipNavigations.length %><%= skipNavPercentage !== null ? ` (${skipNavPercentage}%)` : '' %>
             </a>
           <% } %>
           
           <% if (pageTitle) { %>
             <a href="#section-page-title" class="nav-item">
-              4. 페이지 제목 - <%= pageTitle.correct ? '1' : '0' %> / 1 (<%= pageTitle.correct ? '100' : '0' %>%)
+              4. 페이지 제목 - <%= pageTitle.correct ? '1' : '0' %> / 1 (100%)
             </a>
           <% } %>
           
           <% if (frames) { %>
             <% 
               const validFrames = frames.filter(frame => frame.validate);
-              const framePercentage = Math.round((validFrames.length / frames.length) * 100);
+              const framePercentage = frames.length > 0 ? Math.round((validFrames.length / frames.length) * 100) : null;
             %>
             <a href="#section-frames" class="nav-item">
-              5. iframe 제목 - <%= validFrames.length %> / <%= frames.length %> (<%= framePercentage %>%)
+              5. iframe 제목 - <%= validFrames.length %> / <%= frames.length %><%= framePercentage !== null ? ` (${framePercentage}%)` : '' %>
             </a>
           <% } %>
           
           <% if (headings) { %>
             <a href="#section-headings" class="nav-item">
-              6. 헤딩 - <%= headings.length > 0 ? '1' : '0' %> / 1 (<%= headings.length > 0 ? '100' : '0' %>%)
+              6. 헤딩 - <%= headings.length > 0 ? '1' : '0' %> / 1 (100%)
+            </a>
+          <% } %>
+
+          <% if (inputLabels) { %>
+            <a href="#section-input-labels" class="nav-item">
+              7. 입력 필드 라벨 - <%= inputLabels.value %> / <%= inputLabels.value %><%= inputLabels.value > 0 ? ` (${inputLabels.validate ? '100' : '0'}%)` : '' %>
             </a>
           <% } %>
         </nav>
@@ -277,6 +279,61 @@
           </table>
         </div>
       <% } %>
+
+      <!-- 입력 필드 라벨 섹션 -->
+      <section id="section-input-labels" class="section">
+        <h2>7. 입력 필드 라벨 점검</h2>
+        <div class="stats">
+          <div class="stat-item">
+            <span class="stat-label">총 입력 필드 수</span>
+            <span class="stat-value"><%= inputLabels ? inputLabels.value : 0 %></span>
+          </div>
+        </div>
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th>상태</th>
+              <th>요소</th>
+              <th>타입</th>
+              <th>라벨</th>
+              <th>제목</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (inputLabels && inputLabels.contents) { %>
+              <% inputLabels.contents.forEach(label => { %>
+                <tr class="<%= !label.valid && !label.hidden ? 'fail' : '' %> <%= label.hasTitle && !label.hasLabel ? 'warning' : '' %>" style="opacity:<%= label.hidden ? '0.5' : '1' %>;">
+                  <td>
+                    <% if (label.hidden) { %>
+                      <span class="status hidden">숨김</span>
+                    <% } else if (label.valid) { %>
+                      <span class="status valid">유효</span>
+                    <% } else { %>
+                      <span class="status invalid">오류</span>
+                    <% } %>
+                  </td>
+                  <td><%= label.element %></td>
+                  <td><%= label.type %></td>
+                  <td>
+                    <% if (label.hasLabel) { %>
+                      <span class="status valid">있음</span>
+                    <% } else { %>
+                      <span class="status invalid">없음</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <% if (label.hasTitle) { %>
+                      <span class="status"><%= label.title %></span>
+                    <% } else { %>
+                      <span class="status invalid">없음</span>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } %>
+          </tbody>
+        </table>
+      </section>
     </div>
   </div>
 

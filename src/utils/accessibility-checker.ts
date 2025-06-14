@@ -6,6 +6,7 @@ import {
   checkPageTitle,
   checkFrames,
   checkHeadings,
+  checkInputLabels,
 } from './rule';
 
 export interface ImageInfo {
@@ -37,6 +38,22 @@ export interface HeadingInfo {
   label: string;
   value: string;
   contents: string;
+  validate: boolean;
+  hidden: boolean;
+}
+
+export interface InputLabelInfo {
+  label: string;
+  value: number;
+  contents: {
+    hidden: boolean;
+    element: string;
+    type: string;
+    valid: boolean;
+    title: string;
+    hasLabel: boolean;
+    hasTitle: boolean;
+  }[];
   validate: boolean;
   hidden: boolean;
 }
@@ -81,4 +98,10 @@ export async function extractHeadingsFromPage(
 ): Promise<HeadingInfo[]> {
   const headings = await page.evaluate(checkHeadings);
   return headings;
+}
+
+export async function extractInputLabelsFromPage(
+  page: puppeteer.Page,
+): Promise<InputLabelInfo> {
+  return page.evaluate(checkInputLabels);
 }
