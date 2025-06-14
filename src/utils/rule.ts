@@ -3,12 +3,19 @@
 // @ts-nocheck
 
 export function checkImages() {
-  const images = Array.from(document.querySelectorAll('img'));
+  const images = Array.from(
+    document.querySelectorAll('img, input[type="image"], area'),
+  );
   const baseUrl = window.location.href;
 
   return images.map((img) => {
     const src = img.getAttribute('src') || '';
-    const absoluteSrc = new URL(src, baseUrl).href;
+    let absoluteSrc = '';
+    try {
+      absoluteSrc = new URL(src, baseUrl).href;
+    } catch {
+      absoluteSrc = src;
+    }
 
     const style = window.getComputedStyle(img);
     const visible =
@@ -44,7 +51,12 @@ export function checkBgImages() {
       const bgImage = style.backgroundImage;
       const urlMatch = bgImage.match(/url\(['"]?([^'"()]+)['"]?\)/);
       const src = urlMatch ? urlMatch[1] : '';
-      const absoluteSrc = new URL(src, baseUrl).href;
+      let absoluteSrc = '';
+      try {
+        absoluteSrc = new URL(src, baseUrl).href;
+      } catch {
+        absoluteSrc = src;
+      }
       const visible =
         el.offsetParent !== null &&
         style.visibility !== 'hidden' &&
