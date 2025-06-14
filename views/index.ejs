@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>웹접근성 검사기</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; }
+    .container {
+      display: flex;
+      min-height: 100vh;
+      padding-top: 70px; /* 검색창 높이 + 패딩 */
+    }
+    .sidebar {
+      width: 300px;
+      background: #f5f5f5;
+      padding: 20px;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .main-content {
+      margin-left: 350px;
+      padding: 20px;
+      flex: 1;
+      box-sizing: border-box;
+    }
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      padding: 10px 0;
+    }
+    .result-table { width: 100%; border-collapse: collapse; }
+    .result-table th, .result-table td { border: 1px solid #ccc; padding: 8px; }
+    .result-table img { max-width: 80px; max-height: 80px; }
+    .fail { background: #ffe5e5; } /* 연한 빨간색 */
+    .warning { background: #fffbe5; } /* 연한 노란색 */
+    .nav-item {
+      display: block;
+      padding: 10px;
+      margin: 5px 0;
+      text-decoration: none;
+      color: #333;
+      border-radius: 4px;
+    }
+    .nav-item:hover {
+      background: #e0e0e0;
+    }
+    .nav-item.active {
+      background: #007bff;
+      color: white;
+    }
+    .section {
+      scroll-margin-top: 80px; /* 검색창 높이 + 여백 */
+    }
+    .search-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    .search-container form {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      gap: 10px;
+    }
+    .search-container input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .search-container button {
+      padding: 8px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .search-container button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="search-container">
+    <form class="search" method="POST" action="/analyze">
+      <input type="text" name="url" placeholder="URL을 입력하세요" required />
+      <button type="submit">분석</button>
+    </form>
+  </div>
+  <div class="container">
+    <div class="sidebar">
+      <% if (typeof url !== 'undefined' && url) { %>
+        <h1 style="font-size: 1.5em; margin: 20px 0;">웹접근성 분석 결과</h1>
+        <p>URL: <a href="<%= url %>" target="_blank"><%= url %></a></p>
+        
+        <nav>
+          <% if (images) { %>
+            <% 
+              const validImages = images.filter(img => img.alt !== null);
+              const imagePercentage = Math.round((validImages.length / images.length) * 100);
+            %>
+            <a href="#section-images" class="nav-item">
+              1. 대체 텍스트 (img) - <%= validImages.length %> / <%= images.length %> (<%= imagePercentage %>%)
+            </a>
+          <% } %>
+          
+          <% if (bgImages) { %>
+            <% 
+              const validBgImages = bgImages.filter(bg => bg.alt);
+              const bgImagePercentage = Math.round((validBgImages.length / bgImages.length) * 100);
+            %>
+            <a href="#section-bg-images" class="nav-item">
+              2. 대체 텍스트 (bg)
+            </a>
+          <% } %>
+          
+          <% if (skipNavigations) { %>
+            <% 
+              const connectedSkipNavs = skipNavigations.filter(skip => skip.connected);
+              const skipNavPercentage = Math.round((connectedSkipNavs.length / skipNavigations.length) * 100);
+            %>
+            <a href="#section-skip-nav" class="nav-item">
+              3. 건너뛰기 링크 - <%= connectedSkipNavs.length %> / <%= skipNavigations.length %> (<%= skipNavPercentage %>%)
+            </a>
+          <% } %>
+          
+          <% if (pageTitle) { %>
+            <a href="#section-page-title" class="nav-item">
+              4. 페이지 제목 - <%= pageTitle.correct ? '1' : '0' %> / 1 (<%= pageTitle.correct ? '100' : '0' %>%)
+            </a>
+          <% } %>
+          
+          <% if (frames) { %>
+            <% 
+              const validFrames = frames.filter(frame => frame.validate);
+              const framePercentage = Math.round((validFrames.length / frames.length) * 100);
+            %>
+            <a href="#section-frames" class="nav-item">
+              5. iframe 제목 - <%= validFrames.length %> / <%= frames.length %> (<%= framePercentage %>%)
+            </a>
+          <% } %>
+          
+          <% if (headings) { %>
+            <a href="#section-headings" class="nav-item">
+              6. 헤딩 - <%= headings.length > 0 ? '1' : '0' %> / 1 (<%= headings.length > 0 ? '100' : '0' %>%)
+            </a>
+          <% } %>
+        </nav>
+      <% } %>
+    </div>
+
+    <div class="main-content">
+      <% if (images) { %>
+        <div id="section-images" class="section">
+          <h2>1. 대체 텍스트 (img)</h2>
+          <div style="margin: 0 0 10px 0; font-weight: bold;">총 이미지 수: <%= images.length %></div>
+          <table class="result-table">
+            <tr>
+              <th>hidden</th>
+              <th>이미지</th>
+              <th>대체 텍스트</th>
+            </tr>
+            <% images.forEach(img => { %>
+              <% let cellClass = ""; let altText = img.alt; %>
+              <% if (img.alt === null) { cellClass = 'fail'; altText = 'alt 없음'; } %>
+              <% if (img.alt === '') { cellClass = 'warning'; altText = 'alt=""'; } %>
+              <tr style="opacity:<%= img.hidden ? '0.5' : '1' %>;">
+                <td class="<%= cellClass %>"><%= img.hidden ? 'hidden' : '' %></td>
+                <td class="<%= cellClass %>"><img src="<%= img.src %>" /></td>
+                <td class="<%= cellClass %>"><%= altText %></td>
+              </tr>
+            <% }) %>
+          </table>
+        </div>
+      <% } %>
+
+      <% if (bgImages) { %>
+        <div id="section-bg-images" class="section">
+          <h2>2. 대체 텍스트 (bg)</h2>
+          <div style="margin: 0 0 10px 0; font-weight: bold;">총 background-image 요소 수: <%= bgImages.length %></div>
+          <table class="result-table">
+            <tr>
+              <th>hidden</th>
+              <th>이미지</th>
+              <th>대체 텍스트</th>
+            </tr>
+            <% bgImages.forEach(bg => { %>
+              <tr style="opacity:<%= bg.hidden ? '0.5' : '1' %>;">
+                <td><%= bg.hidden ? 'hidden' : '' %></td>
+                <td><div style="width:80px; height:80px; background:url('<%= bg.src %>') center/cover no-repeat; border-radius:6px;"></div></td>
+                <td><%= bg.alt %></td>
+              </tr>
+            <% }) %>
+          </table>
+        </div>
+      <% } %>
+
+      <% if (skipNavigations) { %>
+        <div id="section-skip-nav" class="section">
+          <h2>3. 건너뛰기 링크</h2>
+          <div style="margin: 0 0 10px 0; font-weight: bold;">총 건너뛰기 링크 수: <%= skipNavigations.length %></div>
+          <table class="result-table">
+            <tr>
+              <th>번호</th>
+              <th>링크</th>
+              <th>연결 여부</th>
+            </tr>
+            <% skipNavigations.forEach(skipNav => { %>
+              <tr>
+                <td><%= skipNav.label %></td>
+                <td><%= skipNav.value %></td>
+                <td><%= skipNav.connected ? 'O' : 'X' %></td>
+              </tr>
+            <% }) %>
+          </table>
+        </div>
+      <% } %>
+
+      <% if (pageTitle) { %>
+        <div id="section-page-title" class="section">
+          <h2>4. 페이지 제목</h2>
+          <div style="margin: 0 0 10px 0; font-weight: bold;"
+            class="<%= pageTitle.correct ? 'pass' : 'fail' %>">페이지 제목: <%= pageTitle.title %></div>
+        </div>
+      <% } %>
+
+      <% if (frames) { %>
+        <div id="section-frames" class="section">
+          <h2>5. iframe 제목</h2>
+          <div style="margin: 0 0 10px 0; font-weight: bold;">총 iframe 수: <%= frames.length %></div>
+          <table class="result-table">
+            <tr>
+              <th>hidden</th>
+              <th>제목</th>
+              <th>URL</th>
+              <th>상태</th>
+            </tr>
+            <% frames.forEach(frame => { %>
+              <% let cellClass = frame.validate ? '' : 'fail'; %>
+              <tr style="opacity:<%= frame.hidden ? '0.5' : '1' %>;">
+                <td class="<%= cellClass %>"><%= frame.hidden ? 'hidden' : '' %></td>
+                <td class="<%= cellClass %>"><%= frame.value || '제목 없음' %></td>
+                <td class="<%= cellClass %>" style="word-break: break-all;"><%= frame.contents %></td>
+                <td class="<%= cellClass %>"><%= frame.validate ? 'O' : 'X' %></td>
+              </tr>
+            <% }) %>
+          </table>
+        </div>
+      <% } %>
+
+      <% if (headings) { %>
+        <div id="section-headings" class="section">
+          <h2>6. 헤딩</h2>
+          <div style="margin: 0 0 10px 0; font-weight: bold;">총 헤딩 수: <%= headings.length %></div>
+          <table class="result-table">
+            <tr>
+              <th>hidden</th>
+              <th>태그</th>
+              <th>제목</th>
+            </tr>
+            <% headings.forEach(heading => { %>
+              <tr style="opacity:<%= heading.hidden ? '0.5' : '1' %>;">
+                <td><%= heading.hidden ? 'hidden' : '' %></td>
+                <td><%= heading.value %></td>
+                <td><%= heading.contents %></td>
+              </tr>
+            <% }) %>
+          </table>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <script>
+    // 현재 활성화된 섹션에 따라 네비게이션 항목 하이라이트
+    const sections = Array.from(document.querySelectorAll('.section'));
+    const navItems = document.querySelectorAll('.nav-item');
+    
+    function getCurrentSection() {
+      const scrollPosition = window.scrollY + 100; // 검색창 높이 고려
+      
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const section = sections[i];
+        const sectionTop = section.offsetTop;
+        const sectionBottom = sectionTop + section.offsetHeight;
+        
+        if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+          return section.id;
+        }
+      }
+      
+      return sections[0].id; // 기본값
+    }
+    
+    function updateActiveNav() {
+      const currentSectionId = getCurrentSection();
+      navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('href') === '#' + currentSectionId) {
+          item.classList.add('active');
+        }
+      });
+    }
+
+    // 스크롤 시 현재 섹션으로 네비게이션 항목 스크롤
+    const sidebar = document.querySelector('.sidebar');
+    
+    function scrollToActiveNav() {
+      const activeNav = document.querySelector('.nav-item.active');
+      if (activeNav && sidebar) {
+        const sidebarRect = sidebar.getBoundingClientRect();
+        const activeNavRect = activeNav.getBoundingClientRect();
+        
+        if (activeNavRect.top < sidebarRect.top || activeNavRect.bottom > sidebarRect.bottom) {
+          sidebar.scrollTo({
+            top: activeNav.offsetTop - sidebar.offsetTop - 20,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+
+    // 스크롤 이벤트에 디바운스 적용
+    let scrollTimeout;
+    window.addEventListener('scroll', () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        updateActiveNav();
+        scrollToActiveNav();
+      }, 100);
+    });
+
+    // 초기 활성화
+    updateActiveNav();
+
+    // fragment 링크 클릭 시 부드러운 스크롤
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = item.getAttribute('href')?.substring(1);
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+</body>
+</html> 
