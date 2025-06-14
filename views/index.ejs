@@ -157,13 +157,19 @@
             </a>
           <% } %>
 
+          <% if (tables) { %>
+            <a href="#section-tables" class="nav-item">
+              8. 테이블 - <%= tables.filter(t => t.valid === 'pass').length %> / <%= tables.length %> (<%= tables.length > 0 ? Math.round((tables.filter(t => t.valid === 'pass').length / tables.length) * 100) : 0 %>%)
+            </a>
+          <% } %>
+
           <% if (inputLabels) { %>
             <% 
               const validLabels = inputLabels.filter(label => label.valid === 'pass');
               const labelPercentage = inputLabels.length > 0 ? Math.round((validLabels.length / inputLabels.length) * 100) : null;
             %>
             <a href="#section-input-labels" class="nav-item">
-              8. 입력 필드 라벨 - <%= validLabels.length %> / <%= inputLabels.length %><%= labelPercentage !== null ? ` (${labelPercentage}%)` : '' %>
+              9. 입력 필드 라벨 - <%= validLabels.length %> / <%= inputLabels.length %><%= labelPercentage !== null ? ` (${labelPercentage}%)` : '' %>
             </a>
           <% } %>
         </nav>
@@ -254,14 +260,12 @@
               <th>hidden</th>
               <th>제목</th>
               <th>URL</th>
-              <th>상태</th>
             </tr>
             <% frames.forEach(frame => { %>
               <tr class="<%= frame.valid === 'fail' ? 'fail' : '' %> <%= frame.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= frame.hidden ? '0.5' : '1' %>;">
                 <td class="<%= frame.valid === 'fail' ? 'fail' : '' %>"><%= frame.hidden ? 'hidden' : '' %></td>
                 <td class="<%= frame.valid === 'fail' ? 'fail' : '' %>"><%= frame.value || '제목 없음' %></td>
                 <td class="<%= frame.valid === 'fail' ? 'fail' : '' %>" style="word-break: break-all;"><%= frame.contents %></td>
-                <td class="<%= frame.valid === 'fail' ? 'fail' : '' %>"><%= frame.validate ? 'O' : 'X' %></td>
               </tr>
             <% }) %>
           </table>
@@ -312,9 +316,49 @@
         </div>
       <% } %>
 
+      <% if (tables) { %>
+        <div id="section-tables" class="section">
+          <h2>8. 테이블</h2>
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>caption</th>
+                <th>summary</th>
+                <th>thead</th>
+                <th>tfoot</th>
+                <th>tbody</th>
+                <th>thead 제목셀(scope)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% tables.forEach((table, idx) => { %>
+                <tr class="<%= table.valid === 'fail' ? 'fail' : '' %> <%= table.valid === 'warning' ? 'warning' : '' %>">
+                  <td><%= idx + 1 %></td>
+                  <td><%= table.caption %></td>
+                  <td><%= table.summary %></td>
+                  <td><%= table.thead ? 'O' : 'X' %></td>
+                  <td><%= table.tfoot ? 'O' : 'X' %></td>
+                  <td><%= table.tbody ? 'O' : 'X' %></td>
+                  <td>
+                    <% table.theadCells.forEach(row => { %>
+                      <% row.forEach(cell => { %>
+                        <% if(cell.tag === 'th') { %>
+                          <div><%= cell.text %> (<%= cell.scope %>)</div>
+                        <% } %>
+                      <% }) %>
+                    <% }) %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+
       <% if (inputLabels) { %>
         <section id="section-input-labels" class="section">
-          <h2>8. 입력 필드 라벨 점검</h2>
+          <h2>9. 입력 필드 라벨 점검</h2>
           <div class="stats">
             <div class="stat-item">
               <span class="stat-label">총 입력 필드 수</span>

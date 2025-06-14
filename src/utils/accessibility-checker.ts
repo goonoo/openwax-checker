@@ -8,6 +8,7 @@ import {
   checkHeadings,
   checkInputLabels,
   checkPageLang,
+  checkTables,
 } from './rule';
 
 export interface ImageInfo {
@@ -57,6 +58,24 @@ export interface InputLabelInfo {
 export interface PageLangInfo {
   lang: string;
   url: string;
+  valid: string;
+}
+
+export interface TableCellInfo {
+  tag: string;
+  text: string;
+  scope: string;
+}
+
+export interface TableInfo {
+  caption: string;
+  summary: string;
+  thead: boolean;
+  tfoot: boolean;
+  tbody: boolean;
+  theadCells: TableCellInfo[][];
+  tfootCells: TableCellInfo[][];
+  tbodyCells: TableCellInfo[][];
   valid: string;
 }
 
@@ -114,4 +133,10 @@ export async function extractPageLangFromPage(
 ): Promise<PageLangInfo[]> {
   const pageLangs = await page.evaluate(checkPageLang);
   return pageLangs;
+}
+
+export async function extractTablesFromPage(
+  page: puppeteer.Page,
+): Promise<TableInfo[]> {
+  return page.evaluate(checkTables);
 }

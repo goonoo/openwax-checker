@@ -315,3 +315,58 @@ export function checkPageLang() {
     })
     .filter((item) => item !== null);
 }
+
+export function checkTables() {
+  return Array.from(document.querySelectorAll('table')).map((table) => {
+    const caption = table.querySelector('caption')?.textContent?.trim() || '';
+    const summary = table.getAttribute('summary') || '';
+    const thead = table.querySelector('thead');
+    const tfoot = table.querySelector('tfoot');
+    const tbody = table.querySelector('tbody');
+    const role = table.getAttribute('role');
+
+    function extractCells(section) {
+      if (!section) return [];
+      return Array.from(section.querySelectorAll('tr')).map((tr) => {
+        return Array.from(tr.children).map((cell) => {
+          return {
+            tag: cell.tagName.toLowerCase(),
+            text: cell.textContent?.trim() || '',
+            scope: cell.getAttribute('scope') || '',
+          };
+        });
+      });
+    }
+
+    // valid 판정 로직
+    let valid = 'fail';
+    if (role === 'presentation') {
+      valid = 'warning';
+    } else {
+      // thead, tbody, tfoot 전체에서 scope 있는 th가 하나라도 있으면 pass
+      const allCells = [
+        extractCells(thead),
+        extractCells(tbody),
+        extractCells(tfoot),
+      ].flat(2);
+      const hasScopeTh = allCells.some(
+        (cell) => cell.tag === 'th' && cell.scope,
+      );
+      if (caption && hasScopeTh) {
+        valid = 'pass';
+      }
+    }
+
+    return {
+      caption,
+      summary,
+      thead: !!thead,
+      tfoot: !!tfoot,
+      tbody: !!tbody,
+      theadCells: extractCells(thead),
+      tfootCells: extractCells(tfoot),
+      tbodyCells: extractCells(tbody),
+      valid,
+    };
+  });
+}

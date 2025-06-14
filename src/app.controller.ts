@@ -1,21 +1,23 @@
 import { Controller, Get, Post, Body, Render } from '@nestjs/common';
 import * as puppeteer from 'puppeteer';
 import {
-  extractImagesFromPage,
-  extractBgImagesFromPage,
   ImageInfo,
-  extractSkipNavFromPage,
   SkipNavInfo,
-  extractPageTitleFromPage,
   PageTitleInfo,
-  extractFramesFromPage,
   FrameInfo,
-  extractHeadingsFromPage,
   HeadingInfo,
-  extractInputLabelsFromPage,
   InputLabelInfo,
   PageLangInfo,
+  TableInfo,
+  extractImagesFromPage,
+  extractBgImagesFromPage,
+  extractSkipNavFromPage,
+  extractPageTitleFromPage,
+  extractFramesFromPage,
+  extractHeadingsFromPage,
+  extractInputLabelsFromPage,
   extractPageLangFromPage,
+  extractTablesFromPage,
 } from './utils/accessibility-checker';
 
 @Controller()
@@ -32,6 +34,7 @@ export class AppController {
       headings: null,
       inputLabels: null,
       pageLang: null,
+      tables: null,
       url: null,
     };
   }
@@ -47,6 +50,7 @@ export class AppController {
     headings: HeadingInfo[];
     inputLabels: InputLabelInfo[];
     pageLang: PageLangInfo[];
+    tables: TableInfo[];
     url: string;
   }> {
     if (!url)
@@ -59,6 +63,7 @@ export class AppController {
         headings: [],
         inputLabels: [],
         pageLang: [],
+        tables: [],
         url: '',
       };
     const browser = await puppeteer.launch();
@@ -73,6 +78,7 @@ export class AppController {
     const headings = await extractHeadingsFromPage(page);
     const inputLabels = await extractInputLabelsFromPage(page);
     const pageLang = await extractPageLangFromPage(page);
+    const tables = await extractTablesFromPage(page);
 
     await browser.close();
     return {
@@ -84,6 +90,7 @@ export class AppController {
       headings,
       inputLabels,
       pageLang,
+      tables,
       url,
     };
   }
