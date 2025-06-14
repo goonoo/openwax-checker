@@ -42,7 +42,7 @@ export class AppController {
     pageTitle: PageTitleInfo;
     frames: FrameInfo[];
     headings: HeadingInfo[];
-    inputLabels: InputLabelInfo;
+    inputLabels: InputLabelInfo[];
     url: string;
   }> {
     if (!url)
@@ -50,16 +50,10 @@ export class AppController {
         images: [],
         bgImages: [],
         skipNavigations: [],
-        pageTitle: { title: '', correct: false },
+        pageTitle: { title: '', valid: 'fail' },
         frames: [],
         headings: [],
-        inputLabels: {
-          label: '',
-          value: 0,
-          contents: [],
-          validate: false,
-          hidden: false,
-        },
+        inputLabels: [],
         url: '',
       };
     const browser = await puppeteer.launch();

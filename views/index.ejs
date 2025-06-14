@@ -131,7 +131,7 @@
           
           <% if (pageTitle) { %>
             <a href="#section-page-title" class="nav-item">
-              4. 페이지 제목 - <%= pageTitle.correct ? '1' : '0' %> / 1 (100%)
+              4. 페이지 제목 - <%= pageTitle.valid === 'pass' ? '1' : '0' %> / 1 (100%)
             </a>
           <% } %>
           
@@ -147,13 +147,17 @@
           
           <% if (headings) { %>
             <a href="#section-headings" class="nav-item">
-              6. 헤딩 - <%= headings.length > 0 ? '1' : '0' %> / 1 (100%)
+              6. 헤딩 - <%= headings.length %> (<% if (headings.length > 0) { %>O<% } else { %>X<% } %>)
             </a>
           <% } %>
 
           <% if (inputLabels) { %>
+            <% 
+              const validLabels = inputLabels.filter(label => label.valid === 'pass');
+              const labelPercentage = inputLabels.length > 0 ? Math.round((validLabels.length / inputLabels.length) * 100) : null;
+            %>
             <a href="#section-input-labels" class="nav-item">
-              7. 입력 필드 라벨 - <%= inputLabels.value %> / <%= inputLabels.value %><%= inputLabels.value > 0 ? ` (${inputLabels.validate ? '100' : '0'}%)` : '' %>
+              7. 입력 필드 라벨 - <%= validLabels.length %> / <%= inputLabels.length %><%= labelPercentage !== null ? ` (${labelPercentage}%)` : '' %>
             </a>
           <% } %>
         </nav>
@@ -175,7 +179,7 @@
               <% let cellClass = ""; let altText = img.alt; %>
               <% if (img.alt === null) { cellClass = 'fail'; altText = 'alt 없음'; } %>
               <% if (img.alt === '') { cellClass = 'warning'; altText = 'alt=""'; } %>
-              <tr style="opacity:<%= img.hidden ? '0.5' : '1' %>;">
+              <tr class="<%= img.valid === 'fail' ? 'fail' : '' %> <%= img.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= img.hidden ? '0.5' : '1' %>;">
                 <td class="<%= cellClass %>"><%= img.hidden ? 'hidden' : '' %></td>
                 <td class="<%= cellClass %>"><img src="<%= img.src %>" /></td>
                 <td class="<%= cellClass %>"><%= altText %></td>
@@ -196,7 +200,7 @@
               <th>대체 텍스트</th>
             </tr>
             <% bgImages.forEach(bg => { %>
-              <tr style="opacity:<%= bg.hidden ? '0.5' : '1' %>;">
+              <tr class="<%= bg.valid === 'fail' ? 'fail' : '' %> <%= bg.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= bg.hidden ? '0.5' : '1' %>;">
                 <td><%= bg.hidden ? 'hidden' : '' %></td>
                 <td><div style="width:80px; height:80px; background:url('<%= bg.src %>') center/cover no-repeat; border-radius:6px;"></div></td>
                 <td><%= bg.alt %></td>
@@ -217,7 +221,7 @@
               <th>연결 여부</th>
             </tr>
             <% skipNavigations.forEach(skipNav => { %>
-              <tr>
+              <tr class="<%= skipNav.valid === 'fail' ? 'fail' : '' %> <%= skipNav.valid === 'warning' ? 'warning' : '' %>">
                 <td><%= skipNav.label %></td>
                 <td><%= skipNav.value %></td>
                 <td><%= skipNav.connected ? 'O' : 'X' %></td>
@@ -231,7 +235,7 @@
         <div id="section-page-title" class="section">
           <h2>4. 페이지 제목</h2>
           <div style="margin: 0 0 10px 0; font-weight: bold;"
-            class="<%= pageTitle.correct ? 'pass' : 'fail' %>">페이지 제목: <%= pageTitle.title %></div>
+            class="<%= pageTitle.valid === 'fail' ? 'fail' : pageTitle.valid === 'warning' ? 'warning' : '' %>">페이지 제목: <%= pageTitle.title %></div>
         </div>
       <% } %>
 
@@ -247,12 +251,11 @@
               <th>상태</th>
             </tr>
             <% frames.forEach(frame => { %>
-              <% let cellClass = frame.validate ? '' : 'fail'; %>
-              <tr style="opacity:<%= frame.hidden ? '0.5' : '1' %>;">
-                <td class="<%= cellClass %>"><%= frame.hidden ? 'hidden' : '' %></td>
-                <td class="<%= cellClass %>"><%= frame.value || '제목 없음' %></td>
-                <td class="<%= cellClass %>" style="word-break: break-all;"><%= frame.contents %></td>
-                <td class="<%= cellClass %>"><%= frame.validate ? 'O' : 'X' %></td>
+              <tr class="<%= frame.valid === 'fail' ? 'fail' : '' %> <%= frame.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= frame.hidden ? '0.5' : '1' %>;">
+                <td class="<%= frame.valid === 'fail' ? 'fail' : '' %>"><%= frame.hidden ? 'hidden' : '' %></td>
+                <td class="<%= frame.valid === 'fail' ? 'fail' : '' %>"><%= frame.value || '제목 없음' %></td>
+                <td class="<%= frame.valid === 'fail' ? 'fail' : '' %>" style="word-break: break-all;"><%= frame.contents %></td>
+                <td class="<%= frame.valid === 'fail' ? 'fail' : '' %>"><%= frame.validate ? 'O' : 'X' %></td>
               </tr>
             <% }) %>
           </table>
@@ -270,7 +273,7 @@
               <th>제목</th>
             </tr>
             <% headings.forEach(heading => { %>
-              <tr style="opacity:<%= heading.hidden ? '0.5' : '1' %>;">
+              <tr class="<%= heading.valid === 'fail' ? 'fail' : '' %> <%= heading.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= heading.hidden ? '0.5' : '1' %>;">
                 <td><%= heading.hidden ? 'hidden' : '' %></td>
                 <td><%= heading.value %></td>
                 <td><%= heading.contents %></td>
@@ -281,59 +284,43 @@
       <% } %>
 
       <!-- 입력 필드 라벨 섹션 -->
-      <section id="section-input-labels" class="section">
-        <h2>7. 입력 필드 라벨 점검</h2>
-        <div class="stats">
-          <div class="stat-item">
-            <span class="stat-label">총 입력 필드 수</span>
-            <span class="stat-value"><%= inputLabels ? inputLabels.value : 0 %></span>
+      <% if (inputLabels) { %>
+        <section id="section-input-labels" class="section">
+          <h2>7. 입력 필드 라벨 점검</h2>
+          <div class="stats">
+            <div class="stat-item">
+              <span class="stat-label">총 입력 필드 수</span>
+              <span class="stat-value"><%= inputLabels.length %></span>
+            </div>
           </div>
-        </div>
-        <table class="result-table">
-          <thead>
-            <tr>
-              <th>상태</th>
-              <th>요소</th>
-              <th>타입</th>
-              <th>라벨</th>
-              <th>제목</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if (inputLabels && inputLabels.contents) { %>
-              <% inputLabels.contents.forEach(label => { %>
-                <tr class="<%= !label.valid && !label.hidden ? 'fail' : '' %> <%= label.hasTitle && !label.hasLabel ? 'warning' : '' %>" style="opacity:<%= label.hidden ? '0.5' : '1' %>;">
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>hidden</th>
+                <th>Element</th>
+                <th>Type</th>
+                <th>Label</th>
+                <th>Title attribute</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% inputLabels.forEach(label => { %>
+                <tr class="<%= label.valid === 'fail' ? 'fail' : '' %> <%= label.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= label.hidden ? '0.5' : '1' %>;">
                   <td>
-                    <% if (label.hidden) { %>
-                      <span class="status hidden">숨김</span>
-                    <% } else if (label.valid) { %>
-                      <span class="status valid">유효</span>
-                    <% } else { %>
-                      <span class="status invalid">오류</span>
-                    <% } %>
+                    <% if (label.hidden) { %>hidden<% } %>
                   </td>
                   <td><%= label.element %></td>
                   <td><%= label.type %></td>
                   <td>
-                    <% if (label.hasLabel) { %>
-                      <span class="status valid">있음</span>
-                    <% } else { %>
-                      <span class="status invalid">없음</span>
-                    <% } %>
+                    <% if (label.hasLabel) { %><%= label.label %><% } else { %>X<% } %>
                   </td>
-                  <td>
-                    <% if (label.hasTitle) { %>
-                      <span class="status"><%= label.title %></span>
-                    <% } else { %>
-                      <span class="status invalid">없음</span>
-                    <% } %>
-                  </td>
+                  <td><%= label.title %></span></td>
                 </tr>
               <% }); %>
-            <% } %>
-          </tbody>
-        </table>
-      </section>
+            </tbody>
+          </table>
+        </section>
+      <% } %>
     </div>
   </div>
 

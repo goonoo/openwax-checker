@@ -19,43 +19,38 @@ export interface SkipNavInfo {
   label: string;
   value: string;
   connected: boolean;
+  valid: string;
 }
 
 export interface FrameInfo {
   label: string;
   value: string;
   contents: string;
-  validate: boolean;
+  valid: string;
   hidden: boolean;
 }
 
 export interface PageTitleInfo {
   title: string;
-  correct: boolean;
+  valid: string;
 }
 
 export interface HeadingInfo {
   label: string;
   value: string;
   contents: string;
-  validate: boolean;
+  valid: string;
   hidden: boolean;
 }
 
 export interface InputLabelInfo {
-  label: string;
-  value: number;
-  contents: {
-    hidden: boolean;
-    element: string;
-    type: string;
-    valid: boolean;
-    title: string;
-    hasLabel: boolean;
-    hasTitle: boolean;
-  }[];
-  validate: boolean;
   hidden: boolean;
+  element: string;
+  type: string;
+  valid: string;
+  title: string;
+  hasLabel: boolean;
+  hasTitle: boolean;
 }
 
 export async function extractImagesFromPage(
@@ -102,6 +97,7 @@ export async function extractHeadingsFromPage(
 
 export async function extractInputLabelsFromPage(
   page: puppeteer.Page,
-): Promise<InputLabelInfo> {
-  return page.evaluate(checkInputLabels);
+): Promise<InputLabelInfo[]> {
+  const inputLabels = await page.evaluate(checkInputLabels);
+  return inputLabels;
 }

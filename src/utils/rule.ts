@@ -15,10 +15,17 @@ export function checkImages() {
       img.offsetParent !== null &&
       style.visibility !== 'hidden' &&
       style.display !== 'none';
+    const valid =
+      img.getAttribute('alt') === ''
+        ? 'warning'
+        : img.getAttribute('alt') === null
+          ? 'fail'
+          : 'pass';
     return {
       hidden: !visible,
       src: absoluteSrc,
       alt: img.getAttribute('alt'),
+      valid,
     };
   });
 }
@@ -26,16 +33,6 @@ export function checkImages() {
 export function checkBgImages() {
   const elements = Array.from(document.querySelectorAll('*'));
   const baseUrl = window.location.href;
-
-  function isVisible(element: Element): boolean {
-    const style = window.getComputedStyle(element);
-    return (
-      style.display !== 'none' &&
-      style.visibility !== 'hidden' &&
-      style.opacity !== '0' &&
-      element.getBoundingClientRect().height > 0
-    );
-  }
 
   return elements
     .filter((el) => {
@@ -48,11 +45,17 @@ export function checkBgImages() {
       const urlMatch = bgImage.match(/url\(['"]?([^'"()]+)['"]?\)/);
       const src = urlMatch ? urlMatch[1] : '';
       const absoluteSrc = new URL(src, baseUrl).href;
+      const visible =
+        el.offsetParent !== null &&
+        style.visibility !== 'hidden' &&
+        style.display !== 'none';
+      const valid = 'unknown';
 
       return {
-        hidden: !isVisible(el),
+        hidden: !visible,
         src: absoluteSrc,
         alt: el.getAttribute('aria-label') || el.getAttribute('title') || '',
+        valid,
       };
     });
 }
@@ -67,10 +70,12 @@ export function checkSkipNav() {
           ? false
           : !!document.getElementById(href.replace('#', '')) ||
             document.getElementsByName(href.replace('#', '')).length > 0;
+      const valid = isConnectedLink ? 'pass' : 'fail';
       return {
         label: index + 1 + '번째 링크',
         value: '(' + href + ') ' + a.innerText,
         connected: isConnectedLink,
+        valid,
       };
     })
     .filter((item) => item !== null);
@@ -147,7 +152,7 @@ export function checkPageTitle() {
 
   return {
     title,
-    correct: hasTitle && !hasSpecialCharactersDup,
+    valid: hasTitle && !hasSpecialCharactersDup ? 'pass' : 'fail',
   };
 }
 
@@ -176,7 +181,7 @@ export function checkFrames() {
       label: 'iframe',
       value: frame.getAttribute('title') || '',
       contents: frame.getAttribute('src') || '',
-      validate: !!frame.getAttribute('title'),
+      valid: frame.getAttribute('title') ? 'pass' : 'fail',
       hidden: !visible,
     };
   });
@@ -194,7 +199,7 @@ export function checkHeadings() {
         label: 'heading',
         value: heading.tagName.toLowerCase(),
         contents: heading.textContent?.trim() || '',
-        validate: true,
+        valid: 'pass',
         hidden: !visible,
       };
     },
@@ -218,11 +223,12 @@ export function checkInputLabels() {
     );
   }
 
-  const results = inputs.map((input) => {
+  return inputs.map((input) => {
     const isHidden = !isVisible(input);
     const element = input.tagName.toLowerCase();
     const type = input.getAttribute('type') || 'text';
     const title = input.getAttribute('title') || '';
+    let label = '';
 
     // label 연결 확인
     let hasLabel = false;
@@ -230,9 +236,10 @@ export function checkInputLabels() {
 
     // 1. 연결된 label 확인
     if (input.id) {
-      const label = document.querySelector(`label[for="${input.id}"]`);
-      if (label) {
+      const labelElement = document.querySelector(`label[for="${input.id}"]`);
+      if (labelElement) {
         hasLabel = true;
+        label = labelElement.textContent || '';
       }
     }
 
@@ -241,6 +248,7 @@ export function checkInputLabels() {
       const parentLabel = input.closest('label');
       if (parentLabel) {
         hasLabel = true;
+        label = parentLabel.textContent || '';
       }
     }
 
@@ -253,18 +261,11 @@ export function checkInputLabels() {
       hidden: isHidden,
       element,
       type,
-      valid: hasLabel || hasTitle,
+      label,
+      valid: hasLabel ? 'pass' : hasTitle ? 'warning' : 'fail',
       title: title,
       hasLabel,
       hasTitle,
     };
   });
-
-  return {
-    label: '입력 필드 라벨',
-    value: results.length,
-    contents: results,
-    validate: results.every((r) => r.valid),
-    hidden: results.every((r) => r.hidden),
-  };
 }
