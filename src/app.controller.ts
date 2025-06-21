@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Render } from '@nestjs/common';
+import { Controller, Get, Render, Query } from '@nestjs/common';
 import * as puppeteer from 'puppeteer';
 import {
   ImageInfo,
@@ -22,6 +22,11 @@ import {
 
 @Controller()
 export class AppController {
+  @Get('health')
+  getHealth() {
+    return { status: 'ok', timestamp: new Date().toISOString() };
+  }
+
   @Get()
   @Render('index')
   getIndex() {
@@ -39,9 +44,9 @@ export class AppController {
     };
   }
 
-  @Post('analyze')
+  @Get('analyze')
   @Render('index')
-  async analyze(@Body('url') url: string): Promise<{
+  async analyze(@Query('url') url: string): Promise<{
     images: ImageInfo[];
     bgImages: ImageInfo[];
     skipNavigations: SkipNavInfo[];
@@ -66,9 +71,16 @@ export class AppController {
         tables: [],
         url: '',
       };
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+      ],
+      executablePath: '/usr/bin/chromium',
+    });
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle2' });
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
 
     const images = await extractImagesFromPage(page);
     const bgImages = await extractBgImagesFromPage(page);
