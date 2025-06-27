@@ -103,7 +103,7 @@
         <p>URL: <a href="<%= url %>" target="_blank"><%= url %></a></p>
         
         <nav>
-          <% if (images) { %>
+          <% if (images && images.length > 0) { %>
             <% 
               const validImages = images.filter(img => img.alt !== null);
               const imagePercentage = images.length > 0 ? Math.round((validImages.length / images.length) * 100) : null;
@@ -113,13 +113,13 @@
             </a>
           <% } %>
           
-          <% if (bgImages) { %>
+          <% if (bgImages && bgImages.length > 0) { %>
             <a href="#section-bg-images" class="nav-item">
               2. 대체 텍스트 (bg) - <%= bgImages.length %>
             </a>
           <% } %>
           
-          <% if (skipNavigations) { %>
+          <% if (skipNavigations && skipNavigations.length > 0) { %>
             <% 
               const connectedSkipNavs = skipNavigations.filter(skip => skip.connected);
               const skipNavPercentage = skipNavigations.length > 0 ? Math.round((connectedSkipNavs.length / skipNavigations.length) * 100) : null;
@@ -129,13 +129,13 @@
             </a>
           <% } %>
           
-          <% if (pageTitle) { %>
+          <% if (pageTitle && typeof pageTitle.valid !== 'undefined') { %>
             <a href="#section-page-title" class="nav-item">
               4. 페이지 제목 - <%= pageTitle.valid === 'pass' ? '1' : '0' %> / 1 (100%)
             </a>
           <% } %>
           
-          <% if (frames) { %>
+          <% if (frames && frames.length > 0) { %>
             <% 
               const validFrames = frames.filter(frame => frame.validate);
               const framePercentage = frames.length > 0 ? Math.round((validFrames.length / frames.length) * 100) : null;
@@ -145,25 +145,25 @@
             </a>
           <% } %>
           
-          <% if (headings) { %>
+          <% if (headings && headings.length > 0) { %>
             <a href="#section-headings" class="nav-item">
               6. 헤딩 - <%= headings.length %> (<% if (headings.length > 0) { %>O<% } else { %>X<% } %>)
             </a>
           <% } %>
 
-          <% if (pageLang) { %>
+          <% if (pageLang && pageLang.length > 0) { %>
             <a href="#section-page-lang" class="nav-item">
               7. Language of Page - <%= pageLang.filter(lang => lang.valid === 'pass').length %> / <%= pageLang.length %> (<%= Math.round((pageLang.filter(lang => lang.valid === 'pass').length / pageLang.length) * 100) %>%)
             </a>
           <% } %>
 
-          <% if (tables) { %>
+          <% if (tables && tables.length > 0) { %>
             <a href="#section-tables" class="nav-item">
               8. 테이블 - <%= tables.filter(t => t.valid === 'pass').length %> / <%= tables.length %> (<%= tables.length > 0 ? Math.round((tables.filter(t => t.valid === 'pass').length / tables.length) * 100) : 0 %>%)
             </a>
           <% } %>
 
-          <% if (inputLabels) { %>
+          <% if (inputLabels && inputLabels.length > 0) { %>
             <% 
               const validLabels = inputLabels.filter(label => label.valid === 'pass');
               const labelPercentage = inputLabels.length > 0 ? Math.round((validLabels.length / inputLabels.length) * 100) : null;

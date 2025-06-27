@@ -57,6 +57,33 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Docker 환경에서 테스트 실행
+
+Docker 환경에서 E2E 테스트를 실행하려면 다음 명령어를 사용하세요:
+
+```bash
+# 전체 테스트 실행 (애플리케이션 빌드 및 실행 포함)
+$ ./test.sh
+
+# 테스트만 실행 (애플리케이션이 이미 실행 중인 경우)
+$ ./run-tests.sh
+
+# 또는 docker-compose 직접 사용
+$ docker-compose run --rm test
+```
+
+### 테스트 환경 구성
+
+- `Dockerfile.test`: 테스트 실행을 위한 Docker 이미지
+- `docker-compose.yml`: 테스트 서비스 포함
+- `test.sh`: 전체 테스트 실행 스크립트
+- `run-tests.sh`: 간단한 테스트 실행 스크립트
+
+테스트는 다음을 포함합니다:
+- 웹 접근성 분석 기능 테스트
+- 다양한 HTML 케이스에 대한 검증
+- 에러 처리 테스트
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.

@@ -71,39 +71,54 @@ export class AppController {
         tables: [],
         url: '',
       };
-    const browser = await puppeteer.launch({
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-      ],
-      executablePath: '/usr/bin/chromium',
-    });
-    const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+    try {
+      const browser = await puppeteer.launch({
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+        ],
+        executablePath: '/usr/bin/chromium',
+      });
+      const page = await browser.newPage();
+      await page.goto(url, { waitUntil: 'networkidle2', timeout: 3000 });
 
-    const images = await extractImagesFromPage(page);
-    const bgImages = await extractBgImagesFromPage(page);
-    const skipNavigations = await extractSkipNavFromPage(page);
-    const pageTitle = await extractPageTitleFromPage(page);
-    const frames = await extractFramesFromPage(page);
-    const headings = await extractHeadingsFromPage(page);
-    const inputLabels = await extractInputLabelsFromPage(page);
-    const pageLang = await extractPageLangFromPage(page);
-    const tables = await extractTablesFromPage(page);
+      const images = await extractImagesFromPage(page);
+      const bgImages = await extractBgImagesFromPage(page);
+      const skipNavigations = await extractSkipNavFromPage(page);
+      const pageTitle = await extractPageTitleFromPage(page);
+      const frames = await extractFramesFromPage(page);
+      const headings = await extractHeadingsFromPage(page);
+      const inputLabels = await extractInputLabelsFromPage(page);
+      const pageLang = await extractPageLangFromPage(page);
+      const tables = await extractTablesFromPage(page);
 
-    await browser.close();
-    return {
-      images,
-      bgImages,
-      skipNavigations,
-      pageTitle,
-      frames,
-      headings,
-      inputLabels,
-      pageLang,
-      tables,
-      url,
-    };
+      await browser.close();
+      return {
+        images,
+        bgImages,
+        skipNavigations,
+        pageTitle,
+        frames,
+        headings,
+        inputLabels,
+        pageLang,
+        tables,
+        url,
+      };
+    } catch (e) {
+      return {
+        images: [],
+        bgImages: [],
+        skipNavigations: [],
+        pageTitle: { title: '', valid: 'fail' },
+        frames: [],
+        headings: [],
+        inputLabels: [],
+        pageLang: [],
+        tables: [],
+        url: url,
+      };
+    }
   }
 }

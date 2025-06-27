@@ -28,6 +28,23 @@ services:
     networks:
       - accessibista-network
 
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: accessibista-test
+    environment:
+      - NODE_ENV=test
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+    volumes:
+      - ./test:/app/test
+      - ./src:/app/src
+    networks:
+      - accessibista-network
+    depends_on:
+      - accessibista
+
 networks:
   accessibista-network:
     driver: bridge
