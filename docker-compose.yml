@@ -40,6 +40,7 @@ services:
     volumes:
       - ./test:/app/test
       - ./src:/app/src
+      - ./views:/app/views
     networks:
       - accessibista-network
     depends_on:

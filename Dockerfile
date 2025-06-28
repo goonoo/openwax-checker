@@ -56,6 +56,7 @@ RUN npm ci --only=production && npm cache clean --force
 # Copy built application from builder stage
 COPY --from=builder --chown=nestjs:nestjs /app/dist ./dist
 COPY --from=builder --chown=nestjs:nestjs /app/views ./views
+COPY --from=builder --chown=nestjs:nestjs /app/test ./test
 
 # Puppeteer 환경변수 설정
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium

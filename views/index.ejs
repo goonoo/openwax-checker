@@ -131,7 +131,7 @@
           
           <% if (pageTitle && typeof pageTitle.valid !== 'undefined') { %>
             <a href="#section-page-title" class="nav-item">
-              4. 페이지 제목 - <%= pageTitle.valid === 'pass' ? '1' : '0' %> / 1 (100%)
+              4. 페이지 제목 - <%= pageTitle.valid === 'pass' ? '1' : '0' %> / 1 <%= pageTitle.valid === 'pass' ? '(100%)' : '(0%)' %>
             </a>
           <% } %>
           

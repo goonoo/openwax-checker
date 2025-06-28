@@ -82,120 +82,157 @@ describe('Analyze Endpoint (e2e)', () => {
     expect(html).toContain(localServerUrl);
 
     // 1. 대체 텍스트 (img) 검증
-    const imageNavItem = $('.nav-item').filter((_, el) => 
-      $(el).text().includes('대체 텍스트 (img)')
-    );
+    const imageNavItem = $('.nav-item').filter((_, el) => {
+      return $(el).text().includes('대체 텍스트 (img)');
+    });
     expect(imageNavItem.length).toBeGreaterThan(0);
-    
+
     const imageText = imageNavItem.text();
-    const imageMatch = imageText.match(/대체 텍스트 \(img\) - (\d+) \/ (\d+)/);
+    const imageMatch = imageText.match(
+      /대체 텍스트 \(img\) - (\d+) \/ (\d+) \((\d+)%\)/,
+    );
     expect(imageMatch).toBeDefined();
     const validImages = parseInt(imageMatch![1]);
     const totalImages = parseInt(imageMatch![2]);
-    expect(totalImages).toBeGreaterThan(0);
-    expect(validImages).toBeGreaterThan(0);
-    expect(validImages).toBeLessThanOrEqual(totalImages);
+    const validImagesPercentage = parseInt(imageMatch![3]);
+    expect(totalImages).toBe(13);
+    expect(validImages).toBe(9);
+    expect(validImagesPercentage).toBe(69);
 
-    // 2. 건너뛰기 링크 검증
-    const skipNavItem = $('.nav-item').filter((_, el) => 
-      $(el).text().includes('건너뛰기 링크')
+    // 2. 대체 텍스트 (bg) 검증
+    const bgImageNavItem = $('.nav-item').filter((_, el) =>
+      $(el).text().includes('대체 텍스트 (bg)'),
+    );
+    expect(bgImageNavItem.length).toBeGreaterThan(0);
+
+    const bgImageText = bgImageNavItem.text();
+    const bgImageMatch = bgImageText.match(/대체 텍스트 \(bg\) - (\d+)/);
+    expect(bgImageMatch).toBeDefined();
+    const totalBgImages = parseInt(bgImageMatch![1]);
+    expect(totalBgImages).toBe(1);
+
+    // 3. 건너뛰기 링크 검증
+    const skipNavItem = $('.nav-item').filter((_, el) =>
+      $(el).text().includes('건너뛰기 링크'),
     );
     expect(skipNavItem.length).toBeGreaterThan(0);
-    
+
     const skipNavText = skipNavItem.text();
-    const skipNavMatch = skipNavText.match(/건너뛰기 링크 - (\d+) \/ (\d+)/);
+    const skipNavMatch = skipNavText.match(
+      /건너뛰기 링크 - (\d+) \/ (\d+) \((\d+)%\)/,
+    );
     expect(skipNavMatch).toBeDefined();
     const validSkipNavs = parseInt(skipNavMatch![1]);
     const totalSkipNavs = parseInt(skipNavMatch![2]);
-    expect(totalSkipNavs).toBeGreaterThan(0);
-    expect(validSkipNavs).toBeGreaterThan(0);
-    expect(validSkipNavs).toBeLessThanOrEqual(totalSkipNavs);
+    const validSkipNavsPercentage = parseInt(skipNavMatch![3]);
+    expect(totalSkipNavs).toBe(3);
+    expect(validSkipNavs).toBe(2);
+    expect(validSkipNavsPercentage).toBe(67);
 
-    // 3. 페이지 제목 검증
-    const pageTitleItem = $('.nav-item').filter((_, el) => 
-      $(el).text().includes('페이지 제목')
+    // 4. 페이지 제목 검증
+    const pageTitleItem = $('.nav-item').filter((_, el) =>
+      $(el).text().includes('페이지 제목'),
     );
     expect(pageTitleItem.length).toBeGreaterThan(0);
-    
+
     const pageTitleText = pageTitleItem.text();
-    const pageTitleMatch = pageTitleText.match(/페이지 제목 - (\d+) \/ 1/);
+    const pageTitleMatch = pageTitleText.match(
+      /페이지 제목 - (\d+) \/ (\d+) \((\d+)%\)/,
+    );
     expect(pageTitleMatch).toBeDefined();
     const validPageTitle = parseInt(pageTitleMatch![1]);
+    const totalPageTitle = parseInt(pageTitleMatch![2]);
+    const validPageTitlePercentage = parseInt(pageTitleMatch![3]);
     expect(validPageTitle).toBe(0); // case1.html에는 제목이 없으므로 0이어야 함
+    expect(totalPageTitle).toBe(1);
+    expect(validPageTitlePercentage).toBe(0);
 
-    // 4. iframe 제목 검증
-    const frameItem = $('.nav-item').filter((_, el) => 
-      $(el).text().includes('iframe 제목')
+    // 5. iframe 제목 검증
+    const frameItem = $('.nav-item').filter((_, el) =>
+      $(el).text().includes('iframe 제목'),
     );
     expect(frameItem.length).toBeGreaterThan(0);
-    
+
     const frameText = frameItem.text();
-    const frameMatch = frameText.match(/iframe 제목 - (\d+) \/ (\d+)/);
+    const frameMatch = frameText.match(
+      /iframe 제목 - (\d+) \/ (\d+) \((\d+)%\)/,
+    );
     expect(frameMatch).toBeDefined();
     const validFrames = parseInt(frameMatch![1]);
     const totalFrames = parseInt(frameMatch![2]);
-    expect(totalFrames).toBeGreaterThan(0);
-    expect(validFrames).toBeLessThanOrEqual(totalFrames);
+    const validFramesPercentage = parseInt(frameMatch![3]);
+    expect(totalFrames).toBe(3);
+    expect(validFrames).toBe(0);
+    expect(validFramesPercentage).toBe(0);
 
-    // 5. 헤딩 검증
-    const headingItem = $('.nav-item').filter((_, el) => 
-      $(el).text().includes('헤딩')
+    // 6. 헤딩 검증
+    const headingItem = $('.nav-item').filter((_, el) =>
+      $(el).text().includes('헤딩'),
     );
     expect(headingItem.length).toBeGreaterThan(0);
-    
+
     const headingText = headingItem.text();
     const headingMatch = headingText.match(/헤딩 - (\d+)/);
     expect(headingMatch).toBeDefined();
     const totalHeadings = parseInt(headingMatch![1]);
-    expect(totalHeadings).toBeGreaterThan(0);
+    expect(totalHeadings).toBe(11);
 
-    // 6. Language of Page 검증
-    const langItem = $('.nav-item').filter((_, el) => 
-      $(el).text().includes('Language of Page')
+    // 7. Language of Page 검증
+    const langItem = $('.nav-item').filter((_, el) =>
+      $(el).text().includes('Language of Page'),
     );
     expect(langItem.length).toBeGreaterThan(0);
-    
+
     const langText = langItem.text();
-    const langMatch = langText.match(/Language of Page - (\d+) \/ (\d+)/);
+    const langMatch = langText.match(
+      /Language of Page - (\d+) \/ (\d+) \((\d+)%\)/,
+    );
     expect(langMatch).toBeDefined();
     const validLangs = parseInt(langMatch![1]);
     const totalLangs = parseInt(langMatch![2]);
-    expect(totalLangs).toBeGreaterThan(0);
-    expect(validLangs).toBeGreaterThan(0); // case1.html은 lang="ko"가 있으므로 1이어야 함
-    expect(validLangs).toBeLessThanOrEqual(totalLangs);
+    const validLangsPercentage = parseInt(langMatch![3]);
+    expect(totalLangs).toBe(4);
+    expect(validLangs).toBe(1);
+    expect(validLangsPercentage).toBe(25);
 
-    // 7. 테이블 검증
-    const tableItem = $('.nav-item').filter((_, el) => 
-      $(el).text().includes('테이블')
+    // 8. 테이블 검증
+    const tableItem = $('.nav-item').filter((_, el) =>
+      $(el).text().includes('테이블'),
     );
     expect(tableItem.length).toBeGreaterThan(0);
-    
+
     const tableText = tableItem.text();
-    const tableMatch = tableText.match(/테이블 - (\d+) \/ (\d+)/);
+    const tableMatch = tableText.match(/테이블 - (\d+) \/ (\d+) \((\d+)%\)/);
     expect(tableMatch).toBeDefined();
     const validTables = parseInt(tableMatch![1]);
     const totalTables = parseInt(tableMatch![2]);
-    expect(totalTables).toBeGreaterThan(0);
-    expect(validTables).toBeLessThanOrEqual(totalTables);
+    const validTablesPercentage = parseInt(tableMatch![3]);
+    expect(totalTables).toBe(5);
+    expect(validTables).toBe(1);
+    expect(validTablesPercentage).toBe(20);
 
-    // 8. 입력 필드 라벨 검증
-    const labelItem = $('.nav-item').filter((_, el) => 
-      $(el).text().includes('입력 필드 라벨')
+    // 9. 입력 필드 라벨 검증
+    const labelItem = $('.nav-item').filter((_, el) =>
+      $(el).text().includes('입력 필드 라벨'),
     );
     expect(labelItem.length).toBeGreaterThan(0);
-    
+
     const labelText = labelItem.text();
-    const labelMatch = labelText.match(/입력 필드 라벨 - (\d+) \/ (\d+)/);
+    const labelMatch = labelText.match(
+      /입력 필드 라벨 - (\d+) \/ (\d+) \((\d+)%\)/,
+    );
     expect(labelMatch).toBeDefined();
     const validLabels = parseInt(labelMatch![1]);
     const totalLabels = parseInt(labelMatch![2]);
-    expect(totalLabels).toBeGreaterThan(0);
-    expect(validLabels).toBeLessThanOrEqual(totalLabels);
+    const validLabelsPercentage = parseInt(labelMatch![3]);
+    expect(totalLabels).toBe(10);
+    expect(validLabels).toBe(5);
+    expect(validLabelsPercentage).toBe(50);
 
     // 실제 테이블 데이터도 검증
     const imageTable = $('#section-images .result-table');
     expect(imageTable.length).toBeGreaterThan(0);
-    
+
     const imageRows = imageTable.find('tr').length - 1; // 헤더 제외
     expect(imageRows).toBe(totalImages);
 
@@ -217,7 +254,7 @@ describe('Analyze Endpoint (e2e)', () => {
 
     // 분석 결과는 없어야 함
     expect(html).not.toContain('웹접근성 분석 결과');
-    
+
     // 네비게이션 항목들이 없어야 함
     const navItems = $('.nav-item');
     expect(navItems.length).toBe(0);
