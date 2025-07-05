@@ -32,6 +32,7 @@ export function checkImages() {
       hidden: !visible,
       src: absoluteSrc,
       alt: img.getAttribute('alt'),
+      longdesc: img.getAttribute('longdesc'),
       valid,
     };
   });

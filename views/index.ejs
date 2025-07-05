@@ -304,7 +304,11 @@
               <tr class="<%= img.valid === 'fail' ? 'fail' : '' %> <%= img.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= img.hidden ? '0.5' : '1' %>;">
                 <td class="<%= cellClass %>"><%= img.hidden ? 'hidden' : '' %></td>
                 <td class="<%= cellClass %>"><img src="<%= img.src %>" /></td>
-                <td class="<%= cellClass %>"><%= altText %></td>
+                <td class="<%= cellClass %>"><%= altText %>
+                  <% if (img.longdesc) { %>
+                    <br>longdesc: <a href="<%= img.longdesc %>" target="_blank"><%= img.longdesc %></a>
+                  <% } %>
+                </td>
               </tr>
             <% }) %>
           </table>
