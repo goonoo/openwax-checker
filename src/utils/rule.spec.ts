@@ -476,6 +476,8 @@ describe('6.4.2 제목 제공 - 콘텐츠 블록 검사: checkHeadings', () => {
 describe('7.1.1 기본 언어 표시 검사: checkPageLang', () => {
   beforeEach(() => {
     document.documentElement.removeAttribute('lang');
+    document.documentElement.removeAttribute('xmlns');
+    document.documentElement.removeAttribute('xml:lang');
   });
   it('checkPageLang: lang 속성이 있으면 pass, 없으면 fail', () => {
     document.documentElement.setAttribute('lang', 'ko');
@@ -484,6 +486,31 @@ describe('7.1.1 기본 언어 표시 검사: checkPageLang', () => {
     document.documentElement.removeAttribute('lang');
     results = checkPageLang();
     expect(results[0].valid).toBe('fail');
+  });
+  it('checkPageLang: xhtml에서 lang, xml:lang 모두 있으면 pass', () => {
+    document.documentElement.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+    document.documentElement.setAttribute('lang', 'ko');
+    document.documentElement.setAttribute('xml:lang', 'ko');
+    const results = checkPageLang();
+    expect(results[0].valid).toBe('pass');
+    expect(results[0].value).toContain('xml:lang=ko');
+    expect(results[0].value).toContain('lang=ko');
+  });
+  it('checkPageLang: xhtml에서 xml:lang만 있으면 warning', () => {
+    document.documentElement.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+    document.documentElement.removeAttribute('lang');
+    document.documentElement.setAttribute('xml:lang', 'en');
+    const results = checkPageLang();
+    expect(results[0].valid).toBe('warning');
+    expect(results[0].value).toContain('xml:lang=en');
+  });
+  it('checkPageLang: xhtml에서 lang만 있으면 pass', () => {
+    document.documentElement.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+    document.documentElement.setAttribute('lang', 'en');
+    document.documentElement.removeAttribute('xml:lang');
+    const results = checkPageLang();
+    expect(results[0].valid).toBe('pass');
+    expect(results[0].value).toContain('lang=en');
   });
 });
 

@@ -85,7 +85,12 @@
 
 - **목적**: 페이지(및 프레임)에 `lang` 속성이 올바르게 지정되어 있는지 검사합니다.
 - **원리**:
-  - `<html lang="...">`가 있으면 pass, 없으면 fail.
+  - 일반 HTML: `<html lang="...">`가 있으면 pass, 없으면 fail.
+  - XHTML(`xmlns="http://www.w3.org/1999/xhtml"`):
+    - `lang`과 `xml:lang`이 모두 있으면 pass
+    - `xml:lang`만 있으면 warning
+    - `lang`만 있으면 pass
+    - 둘 다 없으면 fail
   - 프레임 내 문서도 모두 검사합니다.
 - **적용 규정**: 7.1.1
 

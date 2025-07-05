@@ -323,13 +323,29 @@ export function checkPageLang() {
     .map((doc) => {
       try {
         const html = doc.documentElement;
+        const isXhtml = html?.getAttribute('xmlns') === 'http://www.w3.org/1999/xhtml';
         const lang = html?.getAttribute('lang') || '';
+        const xmlLang = html?.getAttribute('xml:lang') || '';
         const url = doc.location.href || '';
-        const valid = lang ? 'pass' : 'fail';
+
+        let valid = 'fail';
+        let value = '';
+        if (isXhtml && xmlLang && lang) {
+          valid = 'pass';
+          value = 'xml:lang=' + xmlLang + ', lang=' + lang;
+        } else if (isXhtml && xmlLang) {
+          valid = 'warning';
+          value = 'xml:lang=' + xmlLang;
+        } else if (lang) {
+          valid = 'pass';
+          value = 'lang=' + lang;
+        }
+
         return {
           lang: lang || '',
           url,
           valid,
+          value,
         };
       } catch {
         return null;
