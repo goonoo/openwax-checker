@@ -72,14 +72,18 @@ export class AppController {
         url: '',
       };
     try {
-      const browser = await puppeteer.launch({
+      // puppeteer 실행 옵션을 환경에 따라 분기
+      const launchOptions: any = {
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
         ],
-        executablePath: '/usr/bin/chromium',
-      });
+      };
+      if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+        launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+      }
+      const browser = await puppeteer.launch(launchOptions);
       const page = await browser.newPage();
       await page.goto(url, { waitUntil: 'networkidle2', timeout: 3000 });
 
