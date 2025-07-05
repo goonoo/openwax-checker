@@ -109,15 +109,79 @@
               const imagePercentage = images.length > 0 ? Math.round((validImages.length / images.length) * 100) : null;
             %>
             <a href="#section-images" class="nav-item">
-              1. 대체 텍스트 (img) - <%= validImages.length %> / <%= images.length %><%= imagePercentage !== null ? ` (${imagePercentage}%)` : '' %>
+              5.1.1 적절한 대체 텍스트 제공 (img) - <%= validImages.length %> / <%= images.length %><%= imagePercentage !== null ? ` (${imagePercentage}%)` : '' %>
             </a>
           <% } %>
           
           <% if (bgImages && bgImages.length > 0) { %>
             <a href="#section-bg-images" class="nav-item">
-              2. 대체 텍스트 (bg) - <%= bgImages.length %>
+              5.1.1 적절한 대체 텍스트 제공 (bg) - <%= bgImages.length %>
             </a>
           <% } %>
+
+          <!--
+          5.2.1 자막 제공
+           * 페이지 내의 video/audio 요소에 자막이 제공되는지 확인
+           * 자막 제공 여부에 따라 판단
+          -->
+
+          <% if (tables && tables.length > 0) { %>
+            <a href="#section-tables" class="nav-item">
+              5.3.1 표의 구성 - <%= tables.filter(t => t.valid === 'pass').length %> / <%= tables.length %> (<%= tables.length > 0 ? Math.round((tables.filter(t => t.valid === 'pass').length / tables.length) * 100) : 0 %>%)
+            </a>
+          <% } %>
+
+          <!--
+          5.3.2 콘텐츠의 선형구조
+          -->
+
+          <!--
+          5.3.3 명확한 지시사항 제공
+          -->
+
+          <!--
+          5.4.1 색에 무관한 콘텐츠 인식
+          -->
+
+          <!--
+          5.4.2 자동 재생 금지
+          -->
+
+          <!--
+          5.4.3 텍스트 콘텐츠의 명도 대비
+          -->
+
+          <!--
+          5.4.4 콘텐츠 간의 구분
+          -->
+
+          <!--
+          6.1.1 키보드 사용 보장
+          -->
+
+          <!--
+          6.1.2 초점 이동과 표시
+          -->
+
+          <!--
+          6.1.3 조작 가능
+          -->
+
+          <!--
+          6.1.4 문자 단축키
+          -->
+
+          <!--
+          6.2.1 응답시간 조절
+          -->
+
+          <!--
+          6.2.2 정지 기능 제공
+          -->
+
+          <!--
+          6.3.1 깜빡임과 번쩍임 사용 제한
+          -->
           
           <% if (skipNavigations && skipNavigations.length > 0) { %>
             <% 
@@ -125,13 +189,13 @@
               const skipNavPercentage = skipNavigations.length > 0 ? Math.round((connectedSkipNavs.length / skipNavigations.length) * 100) : null;
             %>
             <a href="#section-skip-nav" class="nav-item">
-              3. 건너뛰기 링크 - <%= connectedSkipNavs.length %> / <%= skipNavigations.length %><%= skipNavPercentage !== null ? ` (${skipNavPercentage}%)` : '' %>
+              6.4.1 반복 영역 건너뛰기 - <%= connectedSkipNavs.length %> / <%= skipNavigations.length %><%= skipNavPercentage !== null ? ` (${skipNavPercentage}%)` : '' %>
             </a>
           <% } %>
           
           <% if (pageTitle && typeof pageTitle.valid !== 'undefined') { %>
             <a href="#section-page-title" class="nav-item">
-              4. 페이지 제목 - <%= pageTitle.valid === 'pass' ? '1' : '0' %> / 1 <%= pageTitle.valid === 'pass' ? '(100%)' : '(0%)' %>
+              6.4.2 제목 제공 - 페이지 - <%= pageTitle.valid === 'pass' ? '1' : '0' %> / 1 <%= pageTitle.valid === 'pass' ? '(100%)' : '(0%)' %>
             </a>
           <% } %>
           
@@ -141,27 +205,57 @@
               const framePercentage = frames.length > 0 ? Math.round((validFrames.length / frames.length) * 100) : null;
             %>
             <a href="#section-frames" class="nav-item">
-              5. iframe 제목 - <%= validFrames.length %> / <%= frames.length %><%= framePercentage !== null ? ` (${framePercentage}%)` : '' %>
+              6.4.2 제목 제공 - 프레임 - <%= validFrames.length %> / <%= frames.length %><%= framePercentage !== null ? ` (${framePercentage}%)` : '' %>
             </a>
           <% } %>
           
           <% if (headings && headings.length > 0) { %>
             <a href="#section-headings" class="nav-item">
-              6. 헤딩 - <%= headings.length %> (<% if (headings.length > 0) { %>O<% } else { %>X<% } %>)
+              6.4.2 제목 제공 - 콘텐츠 블록 - <%= headings.length %> (<% if (headings.length > 0) { %>O<% } else { %>X<% } %>)
             </a>
           <% } %>
+
+          <!--
+          6.4.3 적절한 링크 텍스트
+          -->
+
+          <!--
+          6.4.4 고정된 참조 위치 정보
+          -->
+
+          <!--
+          6.5.1 단일 포인터 입력 지원
+          -->
+
+          <!--
+          6.5.2 포인터 입력 취소
+          -->
+
+          <!--
+          6.5.3 레이블과 네임
+          -->
+
+          <!--
+          6.5.4 동작기반 작동
+          -->
 
           <% if (pageLang && pageLang.length > 0) { %>
             <a href="#section-page-lang" class="nav-item">
-              7. Language of Page - <%= pageLang.filter(lang => lang.valid === 'pass').length %> / <%= pageLang.length %> (<%= Math.round((pageLang.filter(lang => lang.valid === 'pass').length / pageLang.length) * 100) %>%)
+              7.1.1 기본 언어 표시 - <%= pageLang.filter(lang => lang.valid === 'pass').length %> / <%= pageLang.length %> (<%= Math.round((pageLang.filter(lang => lang.valid === 'pass').length / pageLang.length) * 100) %>%)
             </a>
           <% } %>
 
-          <% if (tables && tables.length > 0) { %>
-            <a href="#section-tables" class="nav-item">
-              8. 테이블 - <%= tables.filter(t => t.valid === 'pass').length %> / <%= tables.length %> (<%= tables.length > 0 ? Math.round((tables.filter(t => t.valid === 'pass').length / tables.length) * 100) : 0 %>%)
-            </a>
-          <% } %>
+          <!--
+          7.2.1 사용자 요구에 따른 실행
+          -->
+
+          <!--
+          7.2.2 찾기 쉬운 도움 정보
+          -->
+
+          <!--
+          7.3.1 오류 정정
+          -->
 
           <% if (inputLabels && inputLabels.length > 0) { %>
             <% 
@@ -169,9 +263,25 @@
               const labelPercentage = inputLabels.length > 0 ? Math.round((validLabels.length / inputLabels.length) * 100) : null;
             %>
             <a href="#section-input-labels" class="nav-item">
-              9. 입력 필드 라벨 - <%= validLabels.length %> / <%= inputLabels.length %><%= labelPercentage !== null ? ` (${labelPercentage}%)` : '' %>
+              7.3.2 레이블 제공 - <%= validLabels.length %> / <%= inputLabels.length %><%= labelPercentage !== null ? ` (${labelPercentage}%)` : '' %>
             </a>
           <% } %>
+
+          <!--
+          7.3.3 접근 가능한 인증
+          -->
+
+          <!--
+          7.3.4 반복 입력 정보
+          -->
+
+          <!--
+          8.1.1 마크업 오류 방지
+          -->
+
+          <!--
+          8.1.2 웹 애플리케이션 접근성 준수
+          -->
         </nav>
       <% } %>
     </div>
@@ -179,7 +289,7 @@
     <div class="main-content">
       <% if (images) { %>
         <div id="section-images" class="section">
-          <h2>1. 대체 텍스트 (img)</h2>
+          <h2>5.1.1 적절한 대체 텍스트 제공 (img)</h2>
           <div style="margin: 0 0 10px 0; font-weight: bold;">총 이미지 수: <%= images.length %></div>
           <table class="result-table">
             <tr>
@@ -203,7 +313,7 @@
 
       <% if (bgImages) { %>
         <div id="section-bg-images" class="section">
-          <h2>2. 대체 텍스트 (bg)</h2>
+          <h2>5.1.1 적절한 대체 텍스트 제공 (bg)</h2>
           <div style="margin: 0 0 10px 0; font-weight: bold;">총 background-image 요소 수: <%= bgImages.length %></div>
           <table class="result-table">
             <tr>
@@ -222,103 +332,9 @@
         </div>
       <% } %>
 
-      <% if (skipNavigations) { %>
-        <div id="section-skip-nav" class="section">
-          <h2>3. 건너뛰기 링크</h2>
-          <div style="margin: 0 0 10px 0; font-weight: bold;">총 건너뛰기 링크 수: <%= skipNavigations.length %></div>
-          <table class="result-table">
-            <tr>
-              <th>번호</th>
-              <th>링크</th>
-              <th>연결 여부</th>
-            </tr>
-            <% skipNavigations.forEach(skipNav => { %>
-              <tr class="<%= skipNav.valid === 'fail' ? 'fail' : '' %> <%= skipNav.valid === 'warning' ? 'warning' : '' %>">
-                <td><%= skipNav.label %></td>
-                <td><%= skipNav.value %></td>
-                <td><%= skipNav.connected ? 'O' : 'X' %></td>
-              </tr>
-            <% }) %>
-          </table>
-        </div>
-      <% } %>
-
-      <% if (pageTitle) { %>
-        <div id="section-page-title" class="section">
-          <h2>4. 페이지 제목</h2>
-          <div style="margin: 0 0 10px 0; font-weight: bold;"
-            class="<%= pageTitle.valid === 'fail' ? 'fail' : pageTitle.valid === 'warning' ? 'warning' : '' %>">페이지 제목: <%= pageTitle.title %></div>
-        </div>
-      <% } %>
-
-      <% if (frames) { %>
-        <div id="section-frames" class="section">
-          <h2>5. iframe 제목</h2>
-          <div style="margin: 0 0 10px 0; font-weight: bold;">총 iframe 수: <%= frames.length %></div>
-          <table class="result-table">
-            <tr>
-              <th>hidden</th>
-              <th>제목</th>
-              <th>URL</th>
-            </tr>
-            <% frames.forEach(frame => { %>
-              <tr class="<%= frame.valid === 'fail' ? 'fail' : '' %> <%= frame.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= frame.hidden ? '0.5' : '1' %>;">
-                <td class="<%= frame.valid === 'fail' ? 'fail' : '' %>"><%= frame.hidden ? 'hidden' : '' %></td>
-                <td class="<%= frame.valid === 'fail' ? 'fail' : '' %>"><%= frame.value || '제목 없음' %></td>
-                <td class="<%= frame.valid === 'fail' ? 'fail' : '' %>" style="word-break: break-all;"><%= frame.contents %></td>
-              </tr>
-            <% }) %>
-          </table>
-        </div>
-      <% } %>
-
-      <% if (headings) { %>
-        <div id="section-headings" class="section">
-          <h2>6. 헤딩</h2>
-          <div style="margin: 0 0 10px 0; font-weight: bold;">총 헤딩 수: <%= headings.length %></div>
-          <table class="result-table">
-            <tr>
-              <th>hidden</th>
-              <th>태그</th>
-              <th>제목</th>
-            </tr>
-            <% headings.forEach(heading => { %>
-              <tr class="<%= heading.valid === 'fail' ? 'fail' : '' %> <%= heading.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= heading.hidden ? '0.5' : '1' %>;">
-                <td><%= heading.hidden ? 'hidden' : '' %></td>
-                <td><%= heading.value %></td>
-                <td><%= heading.contents %></td>
-              </tr>
-            <% }) %>
-          </table>
-        </div>
-      <% } %>
-
-      <% if (pageLang) { %>
-        <div id="section-page-lang" class="section">
-          <h2>7. Language of Page</h2>
-          <div style="margin: 0 0 10px 0; font-weight: bold;">총 페이지 수: <%= pageLang.length %></div>
-          <table class="result-table">
-            <thead>
-              <tr>
-                <th>URL</th>
-                <th>Language</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% pageLang.forEach(lang => { %>
-                <tr class="<%= lang.valid === 'fail' ? 'fail' : '' %> <%= lang.valid === 'warning' ? 'warning' : '' %>">
-                  <td><a href="<%= lang.url %>" target="_blank"><%= lang.url %></a></td>
-                  <td><%= lang.lang || '언어 설정 없음' %></td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
-        </div>
-      <% } %>
-
       <% if (tables) { %>
         <div id="section-tables" class="section">
-          <h2>8. 테이블</h2>
+          <h2>5.3.1 표의 구성</h2>
           <table class="result-table">
             <thead>
               <tr>
@@ -356,9 +372,80 @@
         </div>
       <% } %>
 
+      <% if (skipNavigations) { %>
+        <div id="section-skip-nav" class="section">
+          <h2>6.4.1 반복 영역 건너뛰기</h2>
+          <div style="margin: 0 0 10px 0; font-weight: bold;">총 건너뛰기 링크 수: <%= skipNavigations.length %></div>
+          <table class="result-table">
+            <tr>
+              <th>번호</th>
+              <th>링크</th>
+              <th>연결 여부</th>
+            </tr>
+            <% skipNavigations.forEach(skipNav => { %>
+              <tr class="<%= skipNav.valid === 'fail' ? 'fail' : '' %> <%= skipNav.valid === 'warning' ? 'warning' : '' %>">
+                <td><%= skipNav.label %></td>
+                <td><%= skipNav.value %></td>
+                <td><%= skipNav.connected ? 'O' : 'X' %></td>
+              </tr>
+            <% }) %>
+          </table>
+        </div>
+      <% } %>
+
+      <% if (pageTitle) { %>
+        <div id="section-page-title" class="section">
+          <h2>6.4.2 제목 제공 - 페이지</h2>
+          <div style="margin: 0 0 10px 0; font-weight: bold;"
+            class="<%= pageTitle.valid === 'fail' ? 'fail' : pageTitle.valid === 'warning' ? 'warning' : '' %>">페이지 제목: <%= pageTitle.title %></div>
+        </div>
+      <% } %>
+
+      <% if (frames) { %>
+        <div id="section-frames" class="section">
+          <h2>6.4.2 제목 제공 - 프레임</h2>
+          <div style="margin: 0 0 10px 0; font-weight: bold;">총 iframe 수: <%= frames.length %></div>
+          <table class="result-table">
+            <tr>
+              <th>hidden</th>
+              <th>제목</th>
+              <th>URL</th>
+            </tr>
+            <% frames.forEach(frame => { %>
+              <tr class="<%= frame.valid === 'fail' ? 'fail' : '' %> <%= frame.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= frame.hidden ? '0.5' : '1' %>;">
+                <td class="<%= frame.valid === 'fail' ? 'fail' : '' %>"><%= frame.hidden ? 'hidden' : '' %></td>
+                <td class="<%= frame.valid === 'fail' ? 'fail' : '' %>"><%= frame.value || '제목 없음' %></td>
+                <td class="<%= frame.valid === 'fail' ? 'fail' : '' %>" style="word-break: break-all;"><%= frame.contents %></td>
+              </tr>
+            <% }) %>
+          </table>
+        </div>
+      <% } %>
+
+      <% if (headings) { %>
+        <div id="section-headings" class="section">
+          <h2>6.4.2 제목 제공 - 콘텐츠 블록</h2>
+          <div style="margin: 0 0 10px 0; font-weight: bold;">총 헤딩 수: <%= headings.length %></div>
+          <table class="result-table">
+            <tr>
+              <th>hidden</th>
+              <th>태그</th>
+              <th>제목</th>
+            </tr>
+            <% headings.forEach(heading => { %>
+              <tr class="<%= heading.valid === 'fail' ? 'fail' : '' %> <%= heading.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= heading.hidden ? '0.5' : '1' %>;">
+                <td><%= heading.hidden ? 'hidden' : '' %></td>
+                <td><%= heading.value %></td>
+                <td><%= heading.contents %></td>
+              </tr>
+            <% }) %>
+          </table>
+        </div>
+      <% } %>
+
       <% if (inputLabels) { %>
         <section id="section-input-labels" class="section">
-          <h2>9. 입력 필드 라벨 점검</h2>
+          <h2>7.3.2 레이블 제공</h2>
           <div class="stats">
             <div class="stat-item">
               <span class="stat-label">총 입력 필드 수</span>
@@ -392,6 +479,29 @@
             </tbody>
           </table>
         </section>
+      <% } %>
+
+      <% if (pageLang) { %>
+        <div id="section-page-lang" class="section">
+          <h2>7.1.1 기본 언어 표시</h2>
+          <div style="margin: 0 0 10px 0; font-weight: bold;">총 페이지 수: <%= pageLang.length %></div>
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>URL</th>
+                <th>Language</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% pageLang.forEach(lang => { %>
+                <tr class="<%= lang.valid === 'fail' ? 'fail' : '' %> <%= lang.valid === 'warning' ? 'warning' : '' %>">
+                  <td><a href="<%= lang.url %>" target="_blank"><%= lang.url %></a></td>
+                  <td><%= lang.lang || '언어 설정 없음' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
       <% } %>
     </div>
   </div>

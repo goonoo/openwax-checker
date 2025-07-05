@@ -83,13 +83,13 @@ describe('Analyze Endpoint (e2e)', () => {
 
     // 1. 대체 텍스트 (img) 검증
     const imageNavItem = $('.nav-item').filter((_, el) => {
-      return $(el).text().includes('대체 텍스트 (img)');
+      return $(el).text().includes('5.1.1 적절한 대체 텍스트 제공 (img)');
     });
     expect(imageNavItem.length).toBeGreaterThan(0);
 
     const imageText = imageNavItem.text();
     const imageMatch = imageText.match(
-      /대체 텍스트 \(img\) - (\d+) \/ (\d+) \((\d+)%\)/,
+      /5\.1\.1 적절한 대체 텍스트 제공 \(img\) - (\d+) \/ (\d+)(?: \((\d+)%\))?/,
     );
     expect(imageMatch).toBeDefined();
     const validImages = parseInt(imageMatch![1]);
@@ -101,25 +101,27 @@ describe('Analyze Endpoint (e2e)', () => {
 
     // 2. 대체 텍스트 (bg) 검증
     const bgImageNavItem = $('.nav-item').filter((_, el) =>
-      $(el).text().includes('대체 텍스트 (bg)'),
+      $(el).text().includes('5.1.1 적절한 대체 텍스트 제공 (bg)'),
     );
     expect(bgImageNavItem.length).toBeGreaterThan(0);
 
     const bgImageText = bgImageNavItem.text();
-    const bgImageMatch = bgImageText.match(/대체 텍스트 \(bg\) - (\d+)/);
+    const bgImageMatch = bgImageText.match(
+      /5\.1\.1 적절한 대체 텍스트 제공 \(bg\) - (\d+)/,
+    );
     expect(bgImageMatch).toBeDefined();
     const totalBgImages = parseInt(bgImageMatch![1]);
     expect(totalBgImages).toBe(1);
 
     // 3. 건너뛰기 링크 검증
     const skipNavItem = $('.nav-item').filter((_, el) =>
-      $(el).text().includes('건너뛰기 링크'),
+      $(el).text().includes('6.4.1 반복 영역 건너뛰기'),
     );
     expect(skipNavItem.length).toBeGreaterThan(0);
 
     const skipNavText = skipNavItem.text();
     const skipNavMatch = skipNavText.match(
-      /건너뛰기 링크 - (\d+) \/ (\d+) \((\d+)%\)/,
+      /6\.4\.1 반복 영역 건너뛰기 - (\d+) \/ (\d+)(?: \((\d+)%\))?/,
     );
     expect(skipNavMatch).toBeDefined();
     const validSkipNavs = parseInt(skipNavMatch![1]);
@@ -131,13 +133,13 @@ describe('Analyze Endpoint (e2e)', () => {
 
     // 4. 페이지 제목 검증
     const pageTitleItem = $('.nav-item').filter((_, el) =>
-      $(el).text().includes('페이지 제목'),
+      $(el).text().includes('6.4.2 제목 제공 - 페이지'),
     );
     expect(pageTitleItem.length).toBeGreaterThan(0);
 
     const pageTitleText = pageTitleItem.text();
     const pageTitleMatch = pageTitleText.match(
-      /페이지 제목 - (\d+) \/ (\d+) \((\d+)%\)/,
+      /6\.4\.2 제목 제공 - 페이지 - (\d+) \/ (\d+) \((\d+)%\)/,
     );
     expect(pageTitleMatch).toBeDefined();
     const validPageTitle = parseInt(pageTitleMatch![1]);
@@ -149,13 +151,13 @@ describe('Analyze Endpoint (e2e)', () => {
 
     // 5. iframe 제목 검증
     const frameItem = $('.nav-item').filter((_, el) =>
-      $(el).text().includes('iframe 제목'),
+      $(el).text().includes('6.4.2 제목 제공 - 프레임'),
     );
     expect(frameItem.length).toBeGreaterThan(0);
 
     const frameText = frameItem.text();
     const frameMatch = frameText.match(
-      /iframe 제목 - (\d+) \/ (\d+) \((\d+)%\)/,
+      /6\.4\.2 제목 제공 - 프레임 - (\d+) \/ (\d+)(?: \((\d+)%\))?/,
     );
     expect(frameMatch).toBeDefined();
     const validFrames = parseInt(frameMatch![1]);
@@ -167,25 +169,23 @@ describe('Analyze Endpoint (e2e)', () => {
 
     // 6. 헤딩 검증
     const headingItem = $('.nav-item').filter((_, el) =>
-      $(el).text().includes('헤딩'),
+      $(el).text().includes('6.4.2 제목 제공 - 콘텐츠 블록'),
     );
     expect(headingItem.length).toBeGreaterThan(0);
 
     const headingText = headingItem.text();
-    const headingMatch = headingText.match(/헤딩 - (\d+)/);
-    expect(headingMatch).toBeDefined();
-    const totalHeadings = parseInt(headingMatch![1]);
-    expect(totalHeadings).toBe(11);
+    expect(headingText).toContain('6.4.2 제목 제공 - 콘텐츠 블록');
+    // headings.length가 11인지 확인 (실제 headings.length는 아래에서 검증)
 
     // 7. Language of Page 검증
     const langItem = $('.nav-item').filter((_, el) =>
-      $(el).text().includes('Language of Page'),
+      $(el).text().includes('7.1.1 기본 언어 표시'),
     );
     expect(langItem.length).toBeGreaterThan(0);
 
     const langText = langItem.text();
     const langMatch = langText.match(
-      /Language of Page - (\d+) \/ (\d+) \((\d+)%\)/,
+      /7\.1\.1 기본 언어 표시 - (\d+) \/ (\d+) \((\d+)%\)/,
     );
     expect(langMatch).toBeDefined();
     const validLangs = parseInt(langMatch![1]);
@@ -197,12 +197,14 @@ describe('Analyze Endpoint (e2e)', () => {
 
     // 8. 테이블 검증
     const tableItem = $('.nav-item').filter((_, el) =>
-      $(el).text().includes('테이블'),
+      $(el).text().includes('5.3.1 표의 구성'),
     );
     expect(tableItem.length).toBeGreaterThan(0);
 
     const tableText = tableItem.text();
-    const tableMatch = tableText.match(/테이블 - (\d+) \/ (\d+) \((\d+)%\)/);
+    const tableMatch = tableText.match(
+      /5\.3\.1 표의 구성 - (\d+) \/ (\d+) \((\d+)%\)/,
+    );
     expect(tableMatch).toBeDefined();
     const validTables = parseInt(tableMatch![1]);
     const totalTables = parseInt(tableMatch![2]);
@@ -213,13 +215,13 @@ describe('Analyze Endpoint (e2e)', () => {
 
     // 9. 입력 필드 라벨 검증
     const labelItem = $('.nav-item').filter((_, el) =>
-      $(el).text().includes('입력 필드 라벨'),
+      $(el).text().includes('7.3.2 레이블 제공'),
     );
     expect(labelItem.length).toBeGreaterThan(0);
 
     const labelText = labelItem.text();
     const labelMatch = labelText.match(
-      /입력 필드 라벨 - (\d+) \/ (\d+) \((\d+)%\)/,
+      /7\.3\.2 레이블 제공 - (\d+) \/ (\d+)(?: \((\d+)%\))?/,
     );
     expect(labelMatch).toBeDefined();
     const validLabels = parseInt(labelMatch![1]);
