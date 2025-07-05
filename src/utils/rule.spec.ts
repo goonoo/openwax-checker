@@ -323,6 +323,13 @@ describe('5.3.1 표의 구성 검사: checkTables', () => {
     const results = checkTables();
     expect(results[0].valid).toBe('pass');
   });
+  it('checkTables: caption만 있고 scope 없는 th만 있으면 warning', () => {
+    document.body.innerHTML = `
+      <table><caption>테이블</caption><thead><tr><th>헤더</th></tr></thead></table>
+    `;
+    const results = checkTables();
+    expect(results[0].valid).toBe('warning');
+  });
   it('checkTables: role이 presentation이면 warning', () => {
     document.body.innerHTML = `
       <table role="presentation"><caption>테이블</caption></table>
@@ -330,7 +337,12 @@ describe('5.3.1 표의 구성 검사: checkTables', () => {
     const results = checkTables();
     expect(results[0].valid).toBe('warning');
   });
-  it('checkTables: caption이나 scope 있는 th가 없으면 fail', () => {
+  it('checkTables: caption, summary, scope 있는 th 모두 없으면 warning', () => {
+    document.body.innerHTML = `<table><thead><tr><td>데이터</td></tr></thead></table>`;
+    const results = checkTables();
+    expect(results[0].valid).toBe('warning');
+  });
+  it('checkTables: 그 외는 fail', () => {
     document.body.innerHTML = `<table><thead><tr><th>헤더</th></tr></thead></table>`;
     const results = checkTables();
     expect(results[0].valid).toBe('fail');

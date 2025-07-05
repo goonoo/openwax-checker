@@ -30,9 +30,11 @@
 
 - **목적**: 표(`table`)가 올바른 구조와 레이블을 갖추고 있는지 검사합니다.
 - **원리**:
-  - `caption`과 `scope` 속성이 있는 `th`가 있으면 pass.
   - `role="presentation"`이면 warning.
-  - 둘 다 없으면 fail.
+  - `caption`과 `scope` 속성이 있는 `th`가 모두 있으면 pass.
+  - `caption`만 있고 scope 없는 `th`만 있으면 warning.
+  - `caption`, `summary`, `scope` 있는 `th`가 모두 없으면 warning(레이아웃 테이블로 간주).
+  - 그 외는 fail.
   - 각 표의 구조(캡션, 요약, thead, tfoot, tbody, 제목셀 등)를 상세히 반환합니다.
 - **적용 규정**: 5.3.1
 

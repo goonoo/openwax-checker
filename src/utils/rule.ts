@@ -109,17 +109,23 @@ export function checkTables() {
     if (role === 'presentation') {
       valid = 'warning';
     } else {
-      // thead, tbody, tfoot 전체에서 scope 있는 th가 하나라도 있으면 pass
+      // thead, tbody, tfoot 전체에서 scope 있는 th가 하나라도 있고, caption이 있어야 pass
       const allCells = [
         extractCells(thead),
         extractCells(tbody),
         extractCells(tfoot),
       ].flat(2);
+      const hasTh = allCells.some((cell) => cell.tag === 'th');
       const hasScopeTh = allCells.some(
         (cell) => cell.tag === 'th' && cell.scope,
       );
       if (caption && hasScopeTh) {
         valid = 'pass';
+      } else if (caption && hasTh) {
+        valid = 'warning';
+      } else if (!caption && !summary && !hasTh) {
+        // caption이 없고, summary도 없고, scope 있는 th도 없으면 레이아웃 테이블로 간주하여 warning
+        valid = 'warning';
       }
     }
 
