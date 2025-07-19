@@ -507,7 +507,7 @@ export function checkUserRequest() {
 export function checkInputLabels() {
   const inputs = Array.from(
     document.querySelectorAll(
-      'input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="hidden"]), select, textarea',
+      'input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="hidden"]):not([type="image"]), select, textarea',
     ),
   );
 

@@ -47,9 +47,12 @@
     .nav-item:hover {
       background: #e0e0e0;
     }
+    .nav-item.invalid {
+      color: #fff;
+      background: rgb(221,30,30);
+    }
     .nav-item.active {
-      background: #007bff;
-      color: white;
+      border-left: 5px solid #007bff;
     }
     .section {
       scroll-margin-top: 80px; /* 검색창 높이 + 여백 */
@@ -107,13 +110,17 @@
             <% 
               const validImages = images.filter(img => img.alt !== null);
               const imagePercentage = images.length > 0 ? Math.round((validImages.length / images.length) * 100) : null;
+              const hasInvalidImages = validImages.length < images.length;
             %>
-            <a href="#section-images" class="nav-item">
+            <a href="#section-images" class="nav-item<%= hasInvalidImages ? ' invalid' : '' %>">
               5.1.1 적절한 대체 텍스트 제공 (img) - <%= validImages.length %> / <%= images.length %><%= imagePercentage !== null ? ` (${imagePercentage}%)` : '' %>
             </a>
           <% } %>
           
           <% if (bgImages && bgImages.length > 0) { %>
+            <% 
+              const hasInvalidBgImages = bgImages.some(bg => !bg.alt || bg.alt === '');
+            %>
             <a href="#section-bg-images" class="nav-item">
               5.1.1 적절한 대체 텍스트 제공 (bg) - <%= bgImages.length %>
             </a>
@@ -126,8 +133,12 @@
           -->
 
           <% if (tables && tables.length > 0) { %>
-            <a href="#section-tables" class="nav-item">
-              5.3.1 표의 구성 - <%= tables.filter(t => t.valid === 'pass').length %> / <%= tables.length %> (<%= tables.length > 0 ? Math.round((tables.filter(t => t.valid === 'pass').length / tables.length) * 100) : 0 %>%)
+            <% 
+              const validTables = tables.filter(t => t.valid === 'pass');
+              const hasInvalidTables = validTables.length < tables.length;
+            %>
+            <a href="#section-tables" class="nav-item<%= hasInvalidTables ? ' invalid' : '' %>">
+              5.3.1 표의 구성 - <%= validTables.length %> / <%= tables.length %> (<%= tables.length > 0 ? Math.round((validTables.length / tables.length) * 100) : 0 %>%)
             </a>
           <% } %>
 
@@ -160,8 +171,8 @@
           -->
 
           <% if (focus && focus.length > 0) { %>
-            <a href="#section-focus" class="nav-item">
-              6.1.2 초점 이동과 표시 - <%= focus.length %>개 문제 발견
+            <a href="#section-focus" class="nav-item invalid">
+              6.1.2 초점 이동과 표시 - <%= focus.length %> Error(s).
             </a>
           <% } %>
 
@@ -189,14 +200,15 @@
             <% 
               const connectedSkipNavs = skipNavigations.filter(skip => skip.connected);
               const skipNavPercentage = skipNavigations.length > 0 ? Math.round((connectedSkipNavs.length / skipNavigations.length) * 100) : null;
+              const hasInvalidSkipNavs = connectedSkipNavs.length < skipNavigations.length;
             %>
-            <a href="#section-skip-nav" class="nav-item">
+            <a href="#section-skip-nav" class="nav-item<%= hasInvalidSkipNavs ? ' invalid' : '' %>">
               6.4.1 반복 영역 건너뛰기 - <%= connectedSkipNavs.length %> / <%= skipNavigations.length %><%= skipNavPercentage !== null ? ` (${skipNavPercentage}%)` : '' %>
             </a>
           <% } %>
           
           <% if (pageTitle && typeof pageTitle.valid !== 'undefined') { %>
-            <a href="#section-page-title" class="nav-item">
+            <a href="#section-page-title" class="nav-item<%= pageTitle.valid !== 'pass' ? ' invalid' : '' %>">
               6.4.2 제목 제공 - 페이지 - <%= pageTitle.valid === 'pass' ? '1' : '0' %> / 1 <%= pageTitle.valid === 'pass' ? '(100%)' : '(0%)' %>
             </a>
           <% } %>
@@ -205,14 +217,15 @@
             <% 
               const validFrames = frames.filter(frame => frame.validate);
               const framePercentage = frames.length > 0 ? Math.round((validFrames.length / frames.length) * 100) : null;
+              const hasInvalidFrames = validFrames.length < frames.length;
             %>
-            <a href="#section-frames" class="nav-item">
+            <a href="#section-frames" class="nav-item<%= hasInvalidFrames ? ' invalid' : '' %>">
               6.4.2 제목 제공 - 프레임 - <%= validFrames.length %> / <%= frames.length %><%= framePercentage !== null ? ` (${framePercentage}%)` : '' %>
             </a>
           <% } %>
           
           <% if (headings && headings.length > 0) { %>
-            <a href="#section-headings" class="nav-item">
+            <a href="#section-headings" class="nav-item<%= headings.length === 0 ? ' invalid' : '' %>">
               6.4.2 제목 제공 - 콘텐츠 블록 - <%= headings.length %> (<% if (headings.length > 0) { %>O<% } else { %>X<% } %>)
             </a>
           <% } %>
@@ -242,14 +255,22 @@
           -->
 
           <% if (pageLang && pageLang.length > 0) { %>
-            <a href="#section-page-lang" class="nav-item">
-              7.1.1 기본 언어 표시 - <%= pageLang.filter(lang => lang.valid === 'pass').length %> / <%= pageLang.length %> (<%= Math.round((pageLang.filter(lang => lang.valid === 'pass').length / pageLang.length) * 100) %>%)
+            <% 
+              const validPageLang = pageLang.filter(lang => lang.valid === 'pass');
+              const hasInvalidPageLang = validPageLang.length < pageLang.length;
+            %>
+            <a href="#section-page-lang" class="nav-item<%= hasInvalidPageLang ? ' invalid' : '' %>">
+              7.1.1 기본 언어 표시 - <%= validPageLang.length %> / <%= pageLang.length %> (<%= Math.round((validPageLang.length / pageLang.length) * 100) %>%)
             </a>
           <% } %>
 
           <% if (userRequest && userRequest.length > 0) { %>
-            <a href="#section-user-request" class="nav-item">
-              7.2.1 사용자 요구에 따른 실행 - <%= userRequest.filter(request => request.valid === 'pass').length %> / <%= userRequest.length %> (<%= Math.round((userRequest.filter(request => request.valid === 'pass').length / userRequest.length) * 100) %>%)
+            <% 
+              const validUserRequest = userRequest.filter(request => request.valid === 'pass');
+              const hasInvalidUserRequest = validUserRequest.length < userRequest.length;
+            %>
+            <a href="#section-user-request" class="nav-item<%= hasInvalidUserRequest ? ' invalid' : '' %>">
+              7.2.1 사용자 요구에 따른 실행 - <%= validUserRequest.length %> / <%= userRequest.length %> (<%= Math.round((validUserRequest.length / userRequest.length) * 100) %>%)
             </a>
           <% } %>
 
@@ -265,8 +286,9 @@
             <% 
               const validLabels = inputLabels.filter(label => label.valid === 'pass');
               const labelPercentage = inputLabels.length > 0 ? Math.round((validLabels.length / inputLabels.length) * 100) : null;
+              const hasInvalidLabels = validLabels.length < inputLabels.length;
             %>
-            <a href="#section-input-labels" class="nav-item">
+            <a href="#section-input-labels" class="nav-item<%= hasInvalidLabels ? ' invalid' : '' %>">
               7.3.2 레이블 제공 - <%= validLabels.length %> / <%= inputLabels.length %><%= labelPercentage !== null ? ` (${labelPercentage}%)` : '' %>
             </a>
           <% } %>
@@ -380,6 +402,37 @@
         </div>
       <% } %>
 
+      <% if (focus) { %>
+        <div id="section-focus" class="section">
+          <h2>6.1.2 초점 이동과 표시</h2>
+          <div style="margin: 0 0 10px 0; font-weight: bold;">총 초점 표시 문제 수: <%= focus.length %></div>
+          <% if (focus.length > 0) { %>
+            <table class="result-table">
+              <thead>
+                <tr>
+                  <th>태그</th>
+                  <th>텍스트</th>
+                  <th>문제 유형</th>
+                  <th>문제 내용</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% focus.forEach(item => { %>
+                  <tr class="<%= item.valid === 'fail' ? 'fail' : '' %>">
+                    <td><%= item.tag %></td>
+                    <td><%= item.text %></td>
+                    <td><%= item.issueType %></td>
+                    <td style="word-break: break-all;"><%= item.issueValue %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } else { %>
+            <div style="color: green; font-weight: bold;">초점 표시 문제가 발견되지 않았습니다.</div>
+          <% } %>
+        </div>
+      <% } %>
+
       <% if (skipNavigations) { %>
         <div id="section-skip-nav" class="section">
           <h2>6.4.1 반복 영역 건너뛰기</h2>
@@ -451,44 +504,6 @@
         </div>
       <% } %>
 
-      <% if (inputLabels) { %>
-        <section id="section-input-labels" class="section">
-          <h2>7.3.2 레이블 제공</h2>
-          <div class="stats">
-            <div class="stat-item">
-              <span class="stat-label">총 입력 필드 수</span>
-              <span class="stat-value"><%= inputLabels.length %></span>
-            </div>
-          </div>
-          <table class="result-table">
-            <thead>
-              <tr>
-                <th>hidden</th>
-                <th>Element</th>
-                <th>Type</th>
-                <th>Label</th>
-                <th>Title attribute</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% inputLabels.forEach(label => { %>
-                <tr class="<%= label.valid === 'fail' ? 'fail' : '' %> <%= label.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= label.hidden ? '0.5' : '1' %>;">
-                  <td>
-                    <% if (label.hidden) { %>hidden<% } %>
-                  </td>
-                  <td><%= label.element %></td>
-                  <td><%= label.type %></td>
-                  <td>
-                    <% if (label.hasLabel) { %><%= label.label %><% } else { %>X<% } %>
-                  </td>
-                  <td><%= label.title %></span></td>
-                </tr>
-              <% }); %>
-            </tbody>
-          </table>
-        </section>
-      <% } %>
-
       <% if (pageLang) { %>
         <div id="section-page-lang" class="section">
           <h2>7.1.1 기본 언어 표시</h2>
@@ -539,35 +554,42 @@
         </div>
       <% } %>
 
-      <% if (focus) { %>
-        <div id="section-focus" class="section">
-          <h2>6.1.2 초점 이동과 표시</h2>
-          <div style="margin: 0 0 10px 0; font-weight: bold;">총 초점 표시 문제 수: <%= focus.length %></div>
-          <% if (focus.length > 0) { %>
-            <table class="result-table">
-              <thead>
-                <tr>
-                  <th>태그</th>
-                  <th>텍스트</th>
-                  <th>문제 유형</th>
-                  <th>문제 내용</th>
+      <% if (inputLabels) { %>
+        <section id="section-input-labels" class="section">
+          <h2>7.3.2 레이블 제공</h2>
+          <div class="stats">
+            <div class="stat-item">
+              <span class="stat-label">총 입력 필드 수</span>
+              <span class="stat-value"><%= inputLabels.length %></span>
+            </div>
+          </div>
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>hidden</th>
+                <th>Element</th>
+                <th>Type</th>
+                <th>Label</th>
+                <th>Title attribute</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% inputLabels.forEach(label => { %>
+                <tr class="<%= label.valid === 'fail' ? 'fail' : '' %> <%= label.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= label.hidden ? '0.5' : '1' %>;">
+                  <td>
+                    <% if (label.hidden) { %>hidden<% } %>
+                  </td>
+                  <td><%= label.element %></td>
+                  <td><%= label.type %></td>
+                  <td>
+                    <% if (label.hasLabel) { %><%= label.label %><% } else { %>X<% } %>
+                  </td>
+                  <td><%= label.title %></span></td>
                 </tr>
-              </thead>
-              <tbody>
-                <% focus.forEach(item => { %>
-                  <tr class="<%= item.valid === 'fail' ? 'fail' : '' %>">
-                    <td><%= item.tag %></td>
-                    <td><%= item.text %></td>
-                    <td><%= item.issueType %></td>
-                    <td style="word-break: break-all;"><%= item.issueValue %></td>
-                  </tr>
-                <% }) %>
-              </tbody>
-            </table>
-          <% } else { %>
-            <div style="color: green; font-weight: bold;">초점 표시 문제가 발견되지 않았습니다.</div>
-          <% } %>
-        </div>
+              <% }); %>
+            </tbody>
+          </table>
+        </section>
       <% } %>
     </div>
   </div>
