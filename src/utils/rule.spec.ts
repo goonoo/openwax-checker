@@ -11,6 +11,7 @@ import {
   checkInputLabels,
   checkPageLang,
   checkTables,
+  checkUserRequest,
 } from './rule';
 
 describe('5.1.1 적절한 대체 텍스트 제공 (img) 검사: checkImages', () => {
@@ -488,7 +489,10 @@ describe('7.1.1 기본 언어 표시 검사: checkPageLang', () => {
     expect(results[0].valid).toBe('fail');
   });
   it('checkPageLang: xhtml에서 lang, xml:lang 모두 있으면 pass', () => {
-    document.documentElement.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+    document.documentElement.setAttribute(
+      'xmlns',
+      'http://www.w3.org/1999/xhtml',
+    );
     document.documentElement.setAttribute('lang', 'ko');
     document.documentElement.setAttribute('xml:lang', 'ko');
     const results = checkPageLang();
@@ -497,7 +501,10 @@ describe('7.1.1 기본 언어 표시 검사: checkPageLang', () => {
     expect(results[0].value).toContain('lang=ko');
   });
   it('checkPageLang: xhtml에서 xml:lang만 있으면 warning', () => {
-    document.documentElement.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+    document.documentElement.setAttribute(
+      'xmlns',
+      'http://www.w3.org/1999/xhtml',
+    );
     document.documentElement.removeAttribute('lang');
     document.documentElement.setAttribute('xml:lang', 'en');
     const results = checkPageLang();
@@ -505,12 +512,83 @@ describe('7.1.1 기본 언어 표시 검사: checkPageLang', () => {
     expect(results[0].value).toContain('xml:lang=en');
   });
   it('checkPageLang: xhtml에서 lang만 있으면 pass', () => {
-    document.documentElement.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+    document.documentElement.setAttribute(
+      'xmlns',
+      'http://www.w3.org/1999/xhtml',
+    );
     document.documentElement.setAttribute('lang', 'en');
     document.documentElement.removeAttribute('xml:lang');
     const results = checkPageLang();
     expect(results[0].valid).toBe('pass');
     expect(results[0].value).toContain('lang=en');
+  });
+});
+
+describe('7.2.1 사용자 요구에 따른 실행 검사: checkUserRequest', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+  
+  it('checkUserRequest: window.open이 있는 요소만 결과에 포함되고, 적절한 valid 값이 반환된다', () => {
+    document.body.innerHTML = `
+      <a href="http://naver.com" onclick="window.open(this.href);return false;">링크</a>
+      <a href="http://naver.com" onclick="window.open(this.href);return false;" title="새창">링크</a>
+      <a href="http://naver.com" onclick="window.open(this.href);return false;" target="_blank">링크</a>
+      <a href="http://naver.com" onclick="window.open(this.href);return false;" title="새창" target="_blank">링크</a>
+      <a href="http://naver.com">일반 링크</a>
+      <button onclick="alert('test')">일반 버튼</button>
+    `;
+    const results = checkUserRequest() as Array<{ valid: string }>;
+    expect(results.length).toBe(4); // window.open이 있는 요소만 포함
+    expect(results[0].valid).toBe('fail'); // title 없음
+    expect(results[1].valid).toBe('pass'); // title 있음
+    expect(results[2].valid).toBe('pass'); // target="_blank"
+    expect(results[3].valid).toBe('pass'); // title과 target="_blank" 모두 있음
+  });
+
+  it('checkUserRequest: textContent에 새창, 팝업, new win이 있으면 pass', () => {
+    document.body.innerHTML = `
+      <a href="http://naver.com" onclick="window.open(this.href);return false;">새창으로 열기</a>
+      <a href="http://naver.com" onclick="window.open(this.href);return false;">팝업 열기</a>
+      <a href="http://naver.com" onclick="window.open(this.href);return false;">New Win</a>
+      <a href="http://naver.com" onclick="window.open(this.href);return false;">일반 링크</a>
+    `;
+    const results = checkUserRequest() as Array<{ valid: string }>;
+    expect(results.length).toBe(4);
+    expect(results[0].valid).toBe('pass'); // "새창" 포함
+    expect(results[1].valid).toBe('pass'); // "팝업" 포함
+    expect(results[2].valid).toBe('pass'); // "new win" 포함
+    expect(results[3].valid).toBe('fail'); // 특별한 텍스트 없음
+  });
+
+  it('checkUserRequest: window.open이 없는 요소는 결과에 포함되지 않는다', () => {
+    document.body.innerHTML = `
+      <a href="http://naver.com">일반 링크</a>
+      <button onclick="alert('test')">일반 버튼</button>
+      <input type="button" value="버튼" onclick="console.log('test')" />
+      <area shape="rect" coords="0,0,100,100" href="http://naver.com" />
+    `;
+    const results = checkUserRequest();
+    expect(results.length).toBe(0); // window.open이 없는 요소는 포함되지 않음
+  });
+
+  it('checkUserRequest: 결과 객체에 필요한 속성들이 포함된다', () => {
+    document.body.innerHTML = `
+      <a href="http://naver.com" onclick="window.open(this.href);return false;" title="새창" target="_blank">링크</a>
+    `;
+    const results = checkUserRequest() as Array<{
+      tag: string;
+      title: string;
+      target: string;
+      text: string;
+      valid: string;
+    }>;
+    expect(results.length).toBe(1);
+    expect(results[0]).toHaveProperty('tag', 'a');
+    expect(results[0]).toHaveProperty('title', '새창');
+    expect(results[0]).toHaveProperty('target', '_blank');
+    expect(results[0]).toHaveProperty('text', '링크');
+    expect(results[0]).toHaveProperty('valid', 'pass');
   });
 });
 
@@ -535,4 +613,3 @@ describe('7.3.2 레이블 제공 검사: checkInputLabels', () => {
     expect(results[0].valid).toBe('pass');
   });
 });
-

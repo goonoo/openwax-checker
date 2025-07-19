@@ -355,12 +355,70 @@ export function checkPageLang() {
 }
 
 /**
+ * 7.2.1 사용자 요청에 의한 새창/팝업 접근성 검사
+ * - a, area, input, button에 대해 click 이벤트에 window.open 실행 여부 확인
+ * - window.open이 있으면 title 없으면 fail
+ * - a, area는 target=_blank면 pass
+ * - textContent에 새창, 팝업, new win이 있으면 pass
+ */
+export function checkUserRequest() {
+  const elements = Array.from(
+    document.querySelectorAll('a, area, input, button'),
+  );
+  const results = [];
+  elements.forEach((el) => {
+    let hasWindowOpen = false;
+    // 1. click 이벤트에 window.open이 있는지 확인
+    // inline onclick
+    const onclick = el.getAttribute('onclick');
+    if (onclick && /window\.open\s*\(/.test(onclick)) {
+      hasWindowOpen = true;
+    }
+    // addEventListener 등으로 등록된 이벤트는 jsdom에서 확인이 어려움(실제 환경에서는 커스텀 분석 필요)
+    // 여기서는 inline만 체크
+    if (hasWindowOpen) {
+      // 2. title 없으면 fail
+      let valid = 'fail';
+      const title = el.getAttribute('title') || '';
+      // 3. a, area는 target=_blank면 pass
+      if (
+        (el.tagName.toLowerCase() === 'a' ||
+          el.tagName.toLowerCase() === 'area') &&
+        el.getAttribute('target') === '_blank'
+      ) {
+        valid = 'pass';
+      }
+      // 4. textContent에 새창, 팝업, new win이 있으면 pass
+      const text = (el.textContent || '').toLowerCase();
+      if (
+        text.includes('새창') ||
+        text.includes('팝업') ||
+        text.includes('new win')
+      ) {
+        valid = 'pass';
+      }
+      if (title) {
+        valid = 'pass';
+      }
+      results.push({
+        tag: el.tagName.toLowerCase(),
+        title,
+        target: el.getAttribute('target') || '',
+        text: el.textContent || '',
+        valid,
+      });
+    }
+  });
+  return results;
+}
+
+/**
  * 7.3.2 레이블 제공 검사
  */
 export function checkInputLabels() {
   const inputs = Array.from(
     document.querySelectorAll(
-      'input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="hidden"]), textarea',
+      'input:not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="hidden"]), select, textarea',
     ),
   );
 

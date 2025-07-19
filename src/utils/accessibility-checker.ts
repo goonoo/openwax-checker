@@ -9,6 +9,7 @@ import {
   checkInputLabels,
   checkPageLang,
   checkTables,
+  checkUserRequest,
 } from './rule';
 
 export interface ImageInfo {
@@ -79,6 +80,12 @@ export interface TableInfo {
   valid: string;
 }
 
+export interface UserRequestInfo {
+  element: string;
+  type: string;
+  valid: string;
+}
+
 export async function extractImagesFromPage(
   page: puppeteer.Page,
 ): Promise<ImageInfo[]> {
@@ -138,5 +145,13 @@ export async function extractPageLangFromPage(
 export async function extractTablesFromPage(
   page: puppeteer.Page,
 ): Promise<TableInfo[]> {
-  return page.evaluate(checkTables);
+  const tables = await page.evaluate(checkTables);
+  return tables;
+}
+
+export async function extractUserRequestFromPage(
+  page: puppeteer.Page,
+): Promise<UserRequestInfo[]> {
+  const userRequest = await page.evaluate(checkUserRequest);
+  return userRequest;
 }

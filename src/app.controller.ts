@@ -9,6 +9,7 @@ import {
   InputLabelInfo,
   PageLangInfo,
   TableInfo,
+  UserRequestInfo,
   extractImagesFromPage,
   extractBgImagesFromPage,
   extractSkipNavFromPage,
@@ -18,6 +19,7 @@ import {
   extractInputLabelsFromPage,
   extractPageLangFromPage,
   extractTablesFromPage,
+  extractUserRequestFromPage,
 } from './utils/accessibility-checker';
 
 @Controller()
@@ -56,6 +58,7 @@ export class AppController {
     inputLabels: InputLabelInfo[];
     pageLang: PageLangInfo[];
     tables: TableInfo[];
+    userRequest: UserRequestInfo[];
     url: string;
   }> {
     if (!url)
@@ -69,6 +72,7 @@ export class AppController {
         inputLabels: [],
         pageLang: [],
         tables: [],
+        userRequest: [],
         url: '',
       };
     try {
@@ -96,6 +100,7 @@ export class AppController {
       const inputLabels = await extractInputLabelsFromPage(page);
       const pageLang = await extractPageLangFromPage(page);
       const tables = await extractTablesFromPage(page);
+      const userRequest = await extractUserRequestFromPage(page);
 
       await browser.close();
       return {
@@ -108,6 +113,7 @@ export class AppController {
         inputLabels,
         pageLang,
         tables,
+        userRequest,
         url,
       };
     } catch (e) {
@@ -121,6 +127,7 @@ export class AppController {
         inputLabels: [],
         pageLang: [],
         tables: [],
+        userRequest: [],
         url: url,
       };
     }
