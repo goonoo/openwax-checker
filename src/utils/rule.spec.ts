@@ -12,6 +12,7 @@ import {
   checkPageLang,
   checkTables,
   checkUserRequest,
+  checkFocus,
 } from './rule';
 
 describe('5.1.1 적절한 대체 텍스트 제공 (img) 검사: checkImages', () => {
@@ -347,6 +348,103 @@ describe('5.3.1 표의 구성 검사: checkTables', () => {
     document.body.innerHTML = `<table><thead><tr><th>헤더</th></tr></thead></table>`;
     const results = checkTables();
     expect(results[0].valid).toBe('fail');
+  });
+});
+
+describe('6.1.2 초점 이동과 표시 검사: checkFocus', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('checkFocus: blur() 이벤트가 있는 요소는 fail을 반환한다', () => {
+    document.body.innerHTML = `
+      <button onfocus="blur()">버튼1</button>
+      <a href="#" onclick="blur()">링크1</a>
+      <input type="text" onfocus="this.blur()" />
+      <button>정상 버튼</button>
+    `;
+    const results = checkFocus() as Array<{
+      tag: string;
+      text: string;
+      issueType: string;
+      valid: string;
+    }>;
+    expect(results.length).toBe(3); // blur() 이벤트가 있는 요소만
+    expect(results[0].issueType).toBe('blur()');
+    expect(results[0].valid).toBe('fail');
+    expect(results[1].issueType).toBe('blur()');
+    expect(results[1].valid).toBe('fail');
+    expect(results[2].issueType).toBe('blur()');
+    expect(results[2].valid).toBe('fail');
+  });
+
+  it('checkFocus: outline:0 스타일이 있는 요소는 fail을 반환한다', () => {
+    document.body.innerHTML = `
+      <button style="outline: none;">버튼1</button>
+      <a href="#" style="outline: 0;">링크1</a>
+      <input type="text" style="outline-width: 0;" />
+      <button style="outline: 2px solid red;">정상 버튼</button>
+    `;
+    const results = checkFocus() as Array<{
+      tag: string;
+      text: string;
+      issueType: string;
+      valid: string;
+    }>;
+    expect(results.length).toBe(3); // outline 제거된 요소만
+    expect(results[0].issueType).toBe('outline:0');
+    expect(results[0].valid).toBe('fail');
+    expect(results[1].issueType).toBe('outline:0');
+    expect(results[1].valid).toBe('fail');
+    expect(results[2].issueType).toBe('outline:0');
+    expect(results[2].valid).toBe('fail');
+  });
+
+  it('checkFocus: 숨겨진 요소는 검사하지 않는다', () => {
+    document.body.innerHTML = `
+      <button style="display: none;" onfocus="blur()">숨겨진 버튼</button>
+      <a href="#" style="visibility: hidden;" style="outline: none;">숨겨진 링크</a>
+      <button onfocus="blur()">보이는 버튼</button>
+    `;
+    const results = checkFocus() as Array<{
+      tag: string;
+      text: string;
+      issueType: string;
+      valid: string;
+    }>;
+    expect(results.length).toBe(1); // 보이는 요소만 검사
+    expect(results[0].text).toBe('보이는 버튼');
+  });
+
+  it('checkFocus: 정상적인 요소는 결과에 포함되지 않는다', () => {
+    document.body.innerHTML = `
+      <button>정상 버튼</button>
+      <a href="#">정상 링크</a>
+      <input type="text" />
+      <select><option>옵션</option></select>
+    `;
+    const results = checkFocus();
+    expect(results.length).toBe(0); // 문제가 없는 요소는 포함되지 않음
+  });
+
+  it('checkFocus: 문제가 있는 모든 요소가 결과에 포함된다', () => {
+    document.body.innerHTML = `
+      <div onfocus="blur()">div는 포커스 불가</div>
+      <span style="outline: none;">span도 포커스 불가</span>
+      <button onfocus="blur()">포커스 가능한 버튼</button>
+      <a href="#" style="outline: none;">포커스 가능한 링크</a>
+    `;
+    const results = checkFocus() as Array<{
+      tag: string;
+      text: string;
+      issueType: string;
+      valid: string;
+    }>;
+    expect(results.length).toBe(4); // 모든 문제가 있는 요소가 포함됨
+    expect(results.some((r) => r.tag === 'div')).toBe(true);
+    expect(results.some((r) => r.tag === 'span')).toBe(true);
+    expect(results.some((r) => r.tag === 'button')).toBe(true);
+    expect(results.some((r) => r.tag === 'a')).toBe(true);
   });
 });
 

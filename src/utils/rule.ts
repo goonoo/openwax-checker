@@ -144,6 +144,95 @@ export function checkTables() {
 }
 
 /**
+ * 6.1.2 초점 이동과 표시
+ */
+export function checkFocus() {
+  const focusableElements = Array.from(
+    document.querySelectorAll(
+      '*',
+    ),
+  );
+
+  return focusableElements
+    .map((element) => {
+      const style = window.getComputedStyle(element);
+      // jsdom에서는 offsetParent가 항상 null이므로, 스타일로만 판단
+      const isVisible =
+        style.visibility !== 'hidden' &&
+        style.display !== 'none';
+
+      if (!isVisible) {
+        return null; // 숨겨진 요소는 검사하지 않음
+      }
+
+      let hasBlurEvent = false;
+      let hasOutlineZero = false;
+      let issueType = '';
+      let issueValue = '';
+
+      // 1. blur() 이벤트 확인
+      const onfocus = element.getAttribute('onfocus');
+      const onclick = element.getAttribute('onclick');
+
+      if (onfocus && onfocus.includes('blur()')) {
+        hasBlurEvent = true;
+        issueType = 'blur()';
+        issueValue = onfocus;
+      } else if (onclick && onclick.includes('blur()')) {
+        hasBlurEvent = true;
+        issueType = 'blur()';
+        issueValue = onclick;
+      }
+
+      // 2. outline:0 스타일 확인
+      const outlineWidth = element.style.getPropertyValue('outline-width');
+      const outlineStyle = element.style.getPropertyValue('outline-style');
+
+      if (
+        outlineWidth === '0px' ||
+        outlineWidth === '0'
+      ) {
+        hasOutlineZero = true;
+        if (!hasBlurEvent) {
+          issueType = 'outline:0';
+          issueValue = `outline-width: ${outlineWidth}, outline-style: ${outlineStyle}`;
+        }
+      }
+
+      // 3. CSS에서 outline 제거 확인
+      const cssText = element.style.cssText || '';
+      if (
+        cssText.includes('outline: none') ||
+        cssText.includes('outline: 0') ||
+        cssText.includes('outline-width: 0')
+      ) {
+        hasOutlineZero = true;
+        if (!hasBlurEvent) {
+          issueType = 'outline:0';
+          issueValue = cssText;
+        }
+      }
+
+      // 4. valid 판정
+      let valid = 'pass';
+      if (hasBlurEvent || hasOutlineZero) {
+        valid = 'fail';
+      }
+
+      return {
+        tag: element.tagName.toLowerCase(),
+        text: element.textContent?.trim() || '',
+        issueType,
+        issueValue,
+        valid,
+        hasBlurEvent,
+        hasOutlineZero,
+      };
+    })
+    .filter((item) => item !== null && item.valid === 'fail'); // 문제가 있는 요소만 반환
+}
+
+/**
  * 6.4.1 반복 영역 건너뛰기 검사
  */
 export function checkSkipNav() {
@@ -478,3 +567,5 @@ export function checkInputLabels() {
     };
   });
 }
+
+

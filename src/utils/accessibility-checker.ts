@@ -10,6 +10,7 @@ import {
   checkPageLang,
   checkTables,
   checkUserRequest,
+  checkFocus,
 } from './rule';
 
 export interface ImageInfo {
@@ -86,6 +87,16 @@ export interface UserRequestInfo {
   valid: string;
 }
 
+export interface FocusInfo {
+  tag: string;
+  text: string;
+  issueType: string;
+  issueValue: string;
+  valid: string;
+  hasBlurEvent: boolean;
+  hasOutlineZero: boolean;
+}
+
 export async function extractImagesFromPage(
   page: puppeteer.Page,
 ): Promise<ImageInfo[]> {
@@ -154,4 +165,11 @@ export async function extractUserRequestFromPage(
 ): Promise<UserRequestInfo[]> {
   const userRequest = await page.evaluate(checkUserRequest);
   return userRequest;
+}
+
+export async function extractFocusFromPage(
+  page: puppeteer.Page,
+): Promise<FocusInfo[]> {
+  const focus = await page.evaluate(checkFocus);
+  return focus.filter((item): item is FocusInfo => item !== null);
 }

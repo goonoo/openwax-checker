@@ -10,6 +10,7 @@ import {
   PageLangInfo,
   TableInfo,
   UserRequestInfo,
+  FocusInfo,
   extractImagesFromPage,
   extractBgImagesFromPage,
   extractSkipNavFromPage,
@@ -20,6 +21,7 @@ import {
   extractPageLangFromPage,
   extractTablesFromPage,
   extractUserRequestFromPage,
+  extractFocusFromPage,
 } from './utils/accessibility-checker';
 
 @Controller()
@@ -42,6 +44,8 @@ export class AppController {
       inputLabels: null,
       pageLang: null,
       tables: null,
+      focus: null,
+      userRequest: null,
       url: null,
     };
   }
@@ -58,6 +62,7 @@ export class AppController {
     inputLabels: InputLabelInfo[];
     pageLang: PageLangInfo[];
     tables: TableInfo[];
+    focus: FocusInfo[];
     userRequest: UserRequestInfo[];
     url: string;
   }> {
@@ -72,6 +77,7 @@ export class AppController {
         inputLabels: [],
         pageLang: [],
         tables: [],
+        focus: [],
         userRequest: [],
         url: '',
       };
@@ -100,6 +106,7 @@ export class AppController {
       const inputLabels = await extractInputLabelsFromPage(page);
       const pageLang = await extractPageLangFromPage(page);
       const tables = await extractTablesFromPage(page);
+      const focus = await extractFocusFromPage(page);
       const userRequest = await extractUserRequestFromPage(page);
 
       await browser.close();
@@ -113,6 +120,7 @@ export class AppController {
         inputLabels,
         pageLang,
         tables,
+        focus,
         userRequest,
         url,
       };
@@ -127,6 +135,7 @@ export class AppController {
         inputLabels: [],
         pageLang: [],
         tables: [],
+        focus: [],
         userRequest: [],
         url: url,
       };
