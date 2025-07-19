@@ -215,7 +215,7 @@
           
           <% if (frames && frames.length > 0) { %>
             <% 
-              const validFrames = frames.filter(frame => frame.validate);
+              const validFrames = frames.filter(frame => frame.valid === 'pass');
               const framePercentage = frames.length > 0 ? Math.round((validFrames.length / frames.length) * 100) : null;
               const hasInvalidFrames = validFrames.length < frames.length;
             %>
