@@ -11,6 +11,7 @@ import {
   checkTables,
   checkUserRequest,
   checkFocus,
+  checkWebApplication,
 } from './rule';
 
 export interface ImageInfo {
@@ -97,6 +98,14 @@ export interface FocusInfo {
   hasOutlineZero: boolean;
 }
 
+export interface WebApplicationInfo {
+  interface: string;
+  index: number;
+  valid: 'pass' | 'fail' | 'warning';
+  issues: string[];
+  [key: string]: any;
+}
+
 export async function extractImagesFromPage(
   page: puppeteer.Page,
 ): Promise<ImageInfo[]> {
@@ -172,4 +181,11 @@ export async function extractFocusFromPage(
 ): Promise<FocusInfo[]> {
   const focus = await page.evaluate(checkFocus);
   return focus.filter((item): item is FocusInfo => item !== null);
+}
+
+export async function extractWebApplicationFromPage(
+  page: puppeteer.Page,
+): Promise<WebApplicationInfo[]> {
+  const webApplication = await page.evaluate(checkWebApplication);
+  return webApplication;
 }

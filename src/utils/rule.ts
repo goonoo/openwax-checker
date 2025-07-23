@@ -147,19 +147,14 @@ export function checkTables() {
  * 6.1.2 초점 이동과 표시
  */
 export function checkFocus() {
-  const focusableElements = Array.from(
-    document.querySelectorAll(
-      '*',
-    ),
-  );
+  const focusableElements = Array.from(document.querySelectorAll('*'));
 
   return focusableElements
     .map((element) => {
       const style = window.getComputedStyle(element);
       // jsdom에서는 offsetParent가 항상 null이므로, 스타일로만 판단
       const isVisible =
-        style.visibility !== 'hidden' &&
-        style.display !== 'none';
+        style.visibility !== 'hidden' && style.display !== 'none';
 
       if (!isVisible) {
         return null; // 숨겨진 요소는 검사하지 않음
@@ -188,10 +183,7 @@ export function checkFocus() {
       const outlineWidth = element.style.getPropertyValue('outline-width');
       const outlineStyle = element.style.getPropertyValue('outline-style');
 
-      if (
-        outlineWidth === '0px' ||
-        outlineWidth === '0'
-      ) {
+      if (outlineWidth === '0px' || outlineWidth === '0') {
         hasOutlineZero = true;
         if (!hasBlurEvent) {
           issueType = 'outline:0';
@@ -412,7 +404,8 @@ export function checkPageLang() {
     .map((doc) => {
       try {
         const html = doc.documentElement;
-        const isXhtml = html?.getAttribute('xmlns') === 'http://www.w3.org/1999/xhtml';
+        const isXhtml =
+          html?.getAttribute('xmlns') === 'http://www.w3.org/1999/xhtml';
         const lang = html?.getAttribute('lang') || '';
         const xmlLang = html?.getAttribute('xml:lang') || '';
         const url = doc.location.href || '';
@@ -568,4 +561,302 @@ export function checkInputLabels() {
   });
 }
 
+/**
+ * 8.2.1 웹 애플리케이션 접근성 준수
+ */
+interface WebApplicationResult {
+  interface: string;
+  index: number;
+  valid: 'pass' | 'fail' | 'warning';
+  issues: string[];
+  [key: string]: any; // 추가 속성들을 위한 인덱스 시그니처
+}
 
+export function checkWebApplication(): WebApplicationResult[] {
+  const results = [];
+
+  // 1. 탭 인터페이스 검사
+  const tablists = Array.from(document.querySelectorAll('[role="tablist"]'));
+  tablists.forEach((tablist, index) => {
+    const tabs = Array.from(tablist.querySelectorAll('[role="tab"]'));
+    
+    // tab의 aria-controls 속성을 통해 연결된 tabpanel들만 찾기
+    const connectedTabpanels: Element[] = [];
+    tabs.forEach(tab => {
+      const controls = tab.getAttribute('aria-controls');
+      if (controls) {
+        // aria-controls는 공백으로 구분된 여러 ID를 가질 수 있음
+        const panelIds = controls.split(/\s+/);
+        panelIds.forEach(panelId => {
+          const panel = document.getElementById(panelId);
+          if (panel && panel.getAttribute('role') === 'tabpanel') {
+            connectedTabpanels.push(panel);
+          }
+        });
+      }
+    });
+
+    let valid = 'pass';
+    const issues = [];
+
+    // tablist 내부에 tab이 없으면 fail
+    if (tabs.length === 0) {
+      valid = 'fail';
+      issues.push('tablist 내부에 tab role이 없음');
+    }
+    // tab이 있지만 연결된 tabpanel이 없으면 fail
+    else if (tabs.length > 0 && connectedTabpanels.length === 0) {
+      valid = 'fail';
+      issues.push('tab role이 있지만 연결된 tabpanel이 없음');
+    }
+    // tab과 연결된 tabpanel의 수가 맞지 않으면 warning
+    else if (tabs.length !== connectedTabpanels.length) {
+      valid = 'warning';
+      issues.push(
+        `tab(${tabs.length})과 연결된 tabpanel(${connectedTabpanels.length})의 수가 일치하지 않음`,
+      );
+    }
+
+    results.push({
+      interface: 'tablist',
+      index: index + 1,
+      tabs: tabs.length,
+      tabpanels: connectedTabpanels.length,
+      valid,
+      issues,
+    });
+  });
+
+  // 2. 메뉴 인터페이스 검사
+  const menubars = Array.from(document.querySelectorAll('[role="menubar"]'));
+  const menus = Array.from(document.querySelectorAll('[role="menu"]'));
+
+  [...menubars, ...menus].forEach((menu, index) => {
+    const menuitems = Array.from(menu.querySelectorAll('[role="menuitem"]'));
+    const menuitemcheckboxes = Array.from(
+      menu.querySelectorAll('[role="menuitemcheckbox"]'),
+    );
+    const menuitemradios = Array.from(
+      menu.querySelectorAll('[role="menuitemradio"]'),
+    );
+
+    let valid = 'pass';
+    const issues = [];
+
+    // menu/menubar 내부에 menuitem이 없으면 fail
+    if (
+      menuitems.length === 0 &&
+      menuitemcheckboxes.length === 0 &&
+      menuitemradios.length === 0
+    ) {
+      valid = 'fail';
+      issues.push('menu/menubar 내부에 menuitem이 없음');
+    }
+
+    results.push({
+      interface: menu.getAttribute('role'),
+      index: index + 1,
+      menuitems: menuitems.length,
+      menuitemcheckboxes: menuitemcheckboxes.length,
+      menuitemradios: menuitemradios.length,
+      valid,
+      issues,
+    });
+  });
+
+  // 3. 콤보 박스 인터페이스 검사
+  const comboboxes = Array.from(document.querySelectorAll('[role="combobox"]'));
+  comboboxes.forEach((combobox, index) => {
+    const listbox = combobox.querySelector('[role="listbox"]');
+    const options = listbox ? Array.from(listbox.querySelectorAll('[role="option"]')) : [];
+
+    let valid = 'pass';
+    const issues = [];
+
+    // combobox 내부에 listbox가 없으면 fail
+    if (!listbox) {
+      valid = 'fail';
+      issues.push('combobox 내부에 listbox가 없음');
+    }
+
+    // listbox가 있지만 option이 없으면 fail
+    if (listbox && options.length === 0) {
+      valid = 'fail';
+      issues.push('listbox가 있지만 option이 없음');
+    }
+
+    results.push({
+      interface: 'combobox',
+      index: index + 1,
+      hasListbox: !!listbox,
+      options: options.length,
+      valid,
+      issues,
+    });
+  });
+
+  // 4. 그리드/표 인터페이스 검사
+  const grids = Array.from(document.querySelectorAll('[role="grid"]'));
+  const tables = Array.from(document.querySelectorAll('[role="table"]'));
+
+  [...grids, ...tables].forEach((grid, index) => {
+    const rows = Array.from(grid.querySelectorAll('[role="row"]'));
+    const rowheaders = Array.from(grid.querySelectorAll('[role="rowheader"]'));
+    const columnheaders = Array.from(
+      grid.querySelectorAll('[role="columnheader"]'),
+    );
+    const cells = Array.from(grid.querySelectorAll('[role="cell"]'));
+
+    let valid = 'pass';
+    const issues = [];
+
+    // grid/table 내부에 row가 없으면 fail
+    if (rows.length === 0) {
+      valid = 'fail';
+      issues.push('grid/table 내부에 row가 없음');
+    }
+
+    // row가 있지만 cell이 없으면 fail
+    if (rows.length > 0 && cells.length === 0) {
+      valid = 'fail';
+      issues.push('row가 있지만 cell이 없음');
+    }
+
+    // columnheader가 있지만 데이터 cell이 없으면 fail (전체 table에서)
+    if (columnheaders.length > 0 && cells.length === 0) {
+      valid = 'fail';
+      issues.push('columnheader가 있지만 데이터 cell이 없음');
+    }
+
+    // 각 row를 개별적으로 검사하여 cell이 없는 row가 있는지 확인
+    // 단, columnheader나 rowheader가 있는 row는 제외
+    rows.forEach((row, rowIndex) => {
+      const rowCells = Array.from(row.querySelectorAll('[role="cell"]'));
+      const rowHeaders = Array.from(row.querySelectorAll('[role="columnheader"], [role="rowheader"]'));
+      
+      // header가 없고 cell도 없는 row는 fail
+      if (rowHeaders.length === 0 && rowCells.length === 0) {
+        valid = 'fail';
+        issues.push(`${rowIndex + 1}번째 row에 cell이 없음`);
+      }
+    });
+
+    // 각 행의 열 수가 일치하는지 확인
+    const rowCellCounts: number[] = [];
+    rows.forEach((row) => {
+      const rowCells = Array.from(row.querySelectorAll('[role="cell"]'));
+      const rowHeaders = Array.from(row.querySelectorAll('[role="columnheader"], [role="rowheader"]'));
+      
+      // header가 있는 row는 cell 수에 포함하지 않음
+      if (rowHeaders.length === 0) {
+        rowCellCounts.push(rowCells.length);
+      }
+    });
+
+    // cell이 있는 row들 중에서 열 수가 다른 경우가 있는지 확인
+    if (rowCellCounts.length > 1) {
+      const firstCount = rowCellCounts[0];
+      const hasInconsistentColumns = rowCellCounts.some(count => count !== firstCount);
+      
+      if (hasInconsistentColumns) {
+        valid = 'fail';
+        issues.push('각 행의 열 수가 일치하지 않음');
+      }
+    }
+
+    results.push({
+      interface: grid.getAttribute('role'),
+      index: index + 1,
+      rows: rows.length,
+      rowheaders: rowheaders.length,
+      columnheaders: columnheaders.length,
+      cells: cells.length,
+      valid,
+      issues,
+    });
+  });
+
+  // 5. 트리 뷰 인터페이스 검사
+  const trees = Array.from(document.querySelectorAll('[role="tree"]'));
+  trees.forEach((tree, index) => {
+    const treeitems = Array.from(tree.querySelectorAll('[role="treeitem"]'));
+    const groups = Array.from(tree.querySelectorAll('[role="group"]'));
+
+    let valid = 'pass';
+    const issues = [];
+
+    // tree 내부에 treeitem이 없으면 fail
+    if (treeitems.length === 0) {
+      valid = 'fail';
+      issues.push('tree 내부에 treeitem이 없음');
+    }
+
+    results.push({
+      interface: 'tree',
+      index: index + 1,
+      treeitems: treeitems.length,
+      groups: groups.length,
+      valid,
+      issues,
+    });
+  });
+
+  // 6. 다이얼로그 인터페이스 검사
+  const dialogs = Array.from(
+    document.querySelectorAll('[role="dialog"], [role="alertdialog"]'),
+  );
+  dialogs.forEach((dialog, index) => {
+    const hasTitle =
+      dialog.getAttribute('aria-labelledby') ||
+      dialog.getAttribute('aria-label') ||
+      dialog.querySelector('[role="heading"]');
+
+    let valid = 'pass';
+    const issues = [];
+
+    // dialog에 제목이 없으면 fail
+    if (!hasTitle) {
+      valid = 'fail';
+      issues.push('dialog에 제목(aria-labelledby, aria-label, heading)이 없음');
+    }
+
+    results.push({
+      interface: dialog.getAttribute('role'),
+      index: index + 1,
+      hasTitle: !!hasTitle,
+      valid,
+      issues,
+    });
+  });
+
+  // 7. 툴바 인터페이스 검사
+  const toolbars = Array.from(document.querySelectorAll('[role="toolbar"]'));
+  toolbars.forEach((toolbar, index) => {
+    const buttons = Array.from(
+      toolbar.querySelectorAll('button, [role="button"]'),
+    );
+    const links = Array.from(toolbar.querySelectorAll('a'));
+    const inputs = Array.from(toolbar.querySelectorAll('input'));
+
+    let valid = 'pass';
+    const issues = [];
+
+    // toolbar 내부에 상호작용 요소가 없으면 fail
+    if (buttons.length === 0 && links.length === 0 && inputs.length === 0) {
+      valid = 'fail';
+      issues.push('toolbar 내부에 상호작용 요소(button, link, input)가 없음');
+    }
+
+    results.push({
+      interface: 'toolbar',
+      index: index + 1,
+      buttons: buttons.length,
+      links: links.length,
+      inputs: inputs.length,
+      valid,
+      issues,
+    });
+  });
+
+  return results;
+}

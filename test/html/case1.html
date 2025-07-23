@@ -193,6 +193,288 @@
       <li><img src="../owax_ff/app/skin/logo.png" alt="" >no tabindex</li>
     </ul>
 
+    <h2>8.2.1 웹 애플리케이션 접근성 준수 - WAI-ARIA 인터페이스</h2>
+    
+    <h3>탭 인터페이스 (올바른 구현)</h3>
+    <div role="tablist" aria-label="사용자 정보 탭">
+      <button role="tab" aria-selected="true" aria-controls="panel1" id="tab1">개인정보</button>
+      <button role="tab" aria-selected="false" aria-controls="panel2" id="tab2">주소정보</button>
+      <button role="tab" aria-selected="false" aria-controls="panel3" id="tab3">결제정보</button>
+    </div>
+    <div role="tabpanel" id="panel1" aria-labelledby="tab1">
+      <h4>개인정보</h4>
+      <p>이름, 전화번호, 이메일 등의 개인정보를 관리합니다.</p>
+    </div>
+    <div role="tabpanel" id="panel2" aria-labelledby="tab2">
+      <h4>주소정보</h4>
+      <p>집 주소, 회사 주소 등의 주소 정보를 관리합니다.</p>
+    </div>
+    <div role="tabpanel" id="panel3" aria-labelledby="tab3">
+      <h4>결제정보</h4>
+      <p>신용카드, 계좌번호 등의 결제 정보를 관리합니다.</p>
+    </div>
+
+    <h3>탭 인터페이스 (잘못된 구현)</h3>
+    <div role="tablist">
+      <!-- tab이 없는 tablist -->
+      <div>일반 요소</div>
+    </div>
+    <div role="tablist">
+      <div role="tab">탭 1</div>
+      <div role="tab">탭 2</div>
+      <!-- tabpanel이 없음 -->
+    </div>
+    <div role="tablist">
+      <div role="tab">탭 1</div>
+      <div role="tab">탭 2</div>
+    </div>
+    <div role="tabpanel">패널 1</div>
+    <!-- tabpanel 수가 맞지 않음 -->
+
+    <h3>메뉴 인터페이스 (올바른 구현)</h3>
+    <nav role="menubar" aria-label="메인 메뉴">
+      <div role="menuitem" aria-haspopup="true" aria-expanded="false">파일</div>
+      <div role="menuitem" aria-haspopup="true" aria-expanded="false">편집</div>
+      <div role="menuitem" aria-haspopup="true" aria-expanded="false">보기</div>
+    </nav>
+    
+    <div role="menu" aria-label="파일 메뉴">
+      <div role="menuitem">새로 만들기</div>
+      <div role="menuitem">열기</div>
+      <div role="menuitemcheckbox" aria-checked="true">자동 저장</div>
+      <div role="menuitem">저장</div>
+      <div role="menuitem">다른 이름으로 저장</div>
+      <div role="menuitemradio" aria-checked="true">UTF-8</div>
+      <div role="menuitemradio" aria-checked="false">EUC-KR</div>
+    </div>
+
+    <h3>메뉴 인터페이스 (잘못된 구현)</h3>
+    <div role="menubar">
+      <!-- menuitem이 없는 menubar -->
+      <div>일반 메뉴</div>
+    </div>
+    <div role="menu">
+      <!-- menuitem이 없는 menu -->
+      <div>일반 항목</div>
+    </div>
+
+    <h3>콤보 박스 인터페이스 (올바른 구현)</h3>
+    <div role="combobox" aria-expanded="false" aria-haspopup="listbox">
+      <label for="country">국가 선택:</label>
+      <input type="text" id="country" aria-autocomplete="list" aria-controls="country-listbox">
+      <div role="listbox" id="country-listbox">
+        <div role="option" aria-selected="false">대한민국</div>
+        <div role="option" aria-selected="false">미국</div>
+        <div role="option" aria-selected="false">일본</div>
+        <div role="option" aria-selected="false">중국</div>
+      </div>
+    </div>
+
+    <h3>콤보 박스 인터페이스 (잘못된 구현)</h3>
+    <div role="combobox">
+      <input type="text">
+      <!-- listbox가 없는 combobox -->
+    </div>
+    <div role="combobox">
+      <input type="text">
+      <div role="listbox">
+        <!-- option이 없는 listbox -->
+        <div>일반 항목</div>
+      </div>
+    </div>
+
+    <h3>그리드/표 인터페이스 (올바른 구현)</h3>
+    <div role="grid" aria-rowcount="3" aria-colcount="4">
+      <div role="row">
+        <div role="columnheader" aria-sort="ascending">이름</div>
+        <div role="columnheader" aria-sort="none">나이</div>
+        <div role="columnheader" aria-sort="none">직업</div>
+        <div role="columnheader" aria-sort="none">도시</div>
+      </div>
+      <div role="row">
+        <div role="cell">김철수</div>
+        <div role="cell">25</div>
+        <div role="cell">개발자</div>
+        <div role="cell">서울</div>
+      </div>
+      <div role="row">
+        <div role="cell">이영희</div>
+        <div role="cell">30</div>
+        <div role="cell">디자이너</div>
+        <div role="cell">부산</div>
+      </div>
+    </div>
+
+    <div role="table" aria-label="사용자 목록">
+      <div role="row">
+        <div role="rowheader">사용자 ID</div>
+        <div role="cell">user001</div>
+      </div>
+      <div role="row">
+        <div role="rowheader">이메일</div>
+        <div role="cell">user001@example.com</div>
+      </div>
+    </div>
+
+    <div role="table" aria-label="제품 정보">
+      <div role="row">
+        <div role="columnheader">제품명</div>
+        <div role="columnheader">가격</div>
+        <div role="columnheader">재고</div>
+      </div>
+      <div role="row">
+        <div role="cell">노트북</div>
+        <div role="cell">1,200,000원</div>
+        <div role="cell">5개</div>
+      </div>
+      <div role="row">
+        <div role="cell">마우스</div>
+        <div role="cell">50,000원</div>
+        <div role="cell">20개</div>
+      </div>
+    </div>
+
+    <h3>그리드/표 인터페이스 (잘못된 구현)</h3>
+    <div role="grid">
+      <!-- row가 없는 grid -->
+      <div>일반 내용</div>
+    </div>
+    <div role="grid">
+      <div role="row">
+        <!-- cell이 없는 row -->
+        <div>일반 내용</div>
+      </div>
+    </div>
+    
+    <div role="table">
+      <!-- row가 없는 table -->
+      <div>일반 내용</div>
+    </div>
+    
+    <div role="table">
+      <div role="row">
+        <!-- cell이 없는 row -->
+        <div>일반 내용</div>
+      </div>
+    </div>
+    
+    <div role="table">
+      <div role="row">
+        <div role="cell">셀 1</div>
+        <div role="cell">셀 2</div>
+      </div>
+      <div role="row">
+        <!-- cell이 없는 두 번째 row -->
+      </div>
+    </div>
+    
+    <div role="table">
+      <div role="row">
+        <div role="cell">셀 1</div>
+        <div role="cell">셀 2</div>
+      </div>
+      <div role="row">
+        <div role="cell">셀 1</div>
+      </div>
+    </div>
+    
+    <div role="table">
+      <div role="row">
+        <div role="columnheader">제목 1</div>
+        <div role="columnheader">제목 2</div>
+      </div>
+      <!-- header는 있지만 데이터 row가 없는 table -->
+    </div>
+
+    <h3>트리 뷰 인터페이스 (올바른 구현)</h3>
+    <div role="tree" aria-label="파일 탐색기">
+      <div role="treeitem" aria-expanded="true" aria-level="1">
+        <span>문서</span>
+        <div role="group">
+          <div role="treeitem" aria-expanded="false" aria-level="2">
+            <span>작업 문서</span>
+          </div>
+          <div role="treeitem" aria-expanded="true" aria-level="2">
+            <span>개인 문서</span>
+            <div role="group">
+              <div role="treeitem" aria-expanded="false" aria-level="3">
+                <span>이력서</span>
+              </div>
+              <div role="treeitem" aria-expanded="false" aria-level="3">
+                <span>자기소개서</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>트리 뷰 인터페이스 (잘못된 구현)</h3>
+    <div role="tree">
+      <!-- treeitem이 없는 tree -->
+      <div>일반 폴더</div>
+    </div>
+
+    <h3>다이얼로그 인터페이스 (올바른 구현)</h3>
+    <div role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description">
+      <h2 id="dialog-title">확인 다이얼로그</h2>
+      <p id="dialog-description">정말로 삭제하시겠습니까?</p>
+      <button>확인</button>
+      <button>취소</button>
+    </div>
+
+    <div role="alertdialog" aria-labelledby="alert-title">
+      <h2 id="alert-title">오류 발생</h2>
+      <p>파일을 찾을 수 없습니다.</p>
+      <button>확인</button>
+    </div>
+
+    <div role="dialog" aria-label="사용자 정보 입력">
+      <h2>사용자 정보</h2>
+      <form>
+        <label for="name">이름:</label>
+        <input type="text" id="name">
+        <button type="submit">저장</button>
+        <button type="button">취소</button>
+      </form>
+    </div>
+
+    <h3>다이얼로그 인터페이스 (잘못된 구현)</h3>
+    <div role="dialog">
+      <!-- 제목이 없는 dialog -->
+      <p>내용만 있는 다이얼로그</p>
+      <button>확인</button>
+    </div>
+
+    <h3>툴바 인터페이스 (올바른 구현)</h3>
+    <div role="toolbar" aria-label="편집 도구">
+      <button type="button" aria-label="굵게">
+        <span aria-hidden="true">B</span>
+      </button>
+      <button type="button" aria-label="기울임">
+        <span aria-hidden="true">I</span>
+      </button>
+      <button type="button" aria-label="밑줄">
+        <span aria-hidden="true">U</span>
+      </button>
+      <a href="#" aria-label="링크 추가">🔗</a>
+      <input type="color" aria-label="색상 선택">
+    </div>
+
+    <div role="toolbar" aria-label="네비게이션">
+      <button type="button">이전</button>
+      <button type="button">다음</button>
+      <input type="text" placeholder="검색...">
+      <a href="#home">홈</a>
+    </div>
+
+    <h3>툴바 인터페이스 (잘못된 구현)</h3>
+    <div role="toolbar">
+      <!-- 상호작용 요소가 없는 toolbar -->
+      <div>일반 텍스트</div>
+      <span>일반 스팬</span>
+    </div>
+
     <h2>단순 열람 문서 형식</h2>
     <ul>
       <li><a href="test.pdf" accesskey="1">test.pdf 링크 (accesskey: 1)</a></li>
@@ -201,6 +483,8 @@
       <li><a href="test.xls">test.xls 링크</a></li>
       <li><a href="test.doc">test.doc 링크</a></li>
     </ul>
+
+    
   </div>
 
   <script src="resources/jquery.min.js"></script>

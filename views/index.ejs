@@ -305,9 +305,15 @@
           8.1.1 마크업 오류 방지
           -->
 
-          <!--
-          8.1.2 웹 애플리케이션 접근성 준수
-          -->
+          <% if (webApplication && webApplication.length > 0) { %>
+            <% 
+              const validWebApps = webApplication.filter(app => app.valid === 'pass');
+              const hasInvalidWebApps = validWebApps.length < webApplication.length;
+            %>
+            <a href="#section-web-application" class="nav-item<%= hasInvalidWebApps ? ' invalid' : '' %>">
+              8.2.1 웹 애플리케이션 접근성 준수 - <%= validWebApps.length %> / <%= webApplication.length %> (<%= Math.round((validWebApps.length / webApplication.length) * 100) %>%)
+            </a>
+          <% } %>
         </nav>
       <% } %>
     </div>
@@ -587,6 +593,66 @@
                   <td><%= label.title %></span></td>
                 </tr>
               <% }); %>
+            </tbody>
+          </table>
+        </section>
+      <% } %>
+
+      <% if (webApplication) { %>
+        <section id="section-web-application" class="section">
+          <h2>8.2.1 웹 애플리케이션 접근성 준수</h2>
+          <div class="stats">
+            <div class="stat-item">
+              <span class="stat-label">총 WAI-ARIA 인터페이스 수</span>
+              <span class="stat-value"><%= webApplication.length %></span>
+            </div>
+          </div>
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>인터페이스</th>
+                <th>상태</th>
+                <th>문제점</th>
+                <th>세부 정보</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% webApplication.forEach(app => { %>
+                <tr class="<%= app.valid === 'fail' ? 'fail' : '' %> <%= app.valid === 'warning' ? 'warning' : '' %>">
+                  <td><%= app.index %></td>
+                  <td><%= app.interface %></td>
+                  <td><%= app.valid %></td>
+                  <td>
+                    <% if (app.issues && app.issues.length > 0) { %>
+                      <ul style="margin: 0; padding-left: 20px;">
+                        <% app.issues.forEach(issue => { %>
+                          <li><%= issue %></li>
+                        <% }) %>
+                      </ul>
+                    <% } else { %>
+                      문제 없음
+                    <% } %>
+                  </td>
+                  <td>
+                    <% if (app.interface === 'tablist') { %>
+                      탭: <%= app.tabs %>, 패널: <%= app.tabpanels %>
+                    <% } else if (app.interface === 'menu' || app.interface === 'menubar') { %>
+                      메뉴 아이템: <%= app.menuitems %>, 체크박스: <%= app.menuitemcheckboxes %>, 라디오: <%= app.menuitemradios %>
+                    <% } else if (app.interface === 'combobox') { %>
+                      리스트박스: <%= app.hasListbox ? '있음' : '없음' %>, 옵션: <%= app.options %>
+                    <% } else if (app.interface === 'grid' || app.interface === 'table') { %>
+                      행: <%= app.rows %>, 셀: <%= app.cells %>, 행헤더: <%= app.rowheaders %>, 열헤더: <%= app.columnheaders %>
+                    <% } else if (app.interface === 'tree') { %>
+                      트리 아이템: <%= app.treeitems %>, 그룹: <%= app.groups %>
+                    <% } else if (app.interface === 'dialog' || app.interface === 'alertdialog') { %>
+                      제목: <%= app.hasTitle ? '있음' : '없음' %>
+                    <% } else if (app.interface === 'toolbar') { %>
+                      버튼: <%= app.buttons %>, 링크: <%= app.links %>, 입력: <%= app.inputs %>
+                    <% } %>
+                  </td>
+                </tr>
+              <% }) %>
             </tbody>
           </table>
         </section>

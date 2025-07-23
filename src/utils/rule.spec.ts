@@ -13,6 +13,7 @@ import {
   checkTables,
   checkUserRequest,
   checkFocus,
+  checkWebApplication,
 } from './rule';
 
 describe('5.1.1 적절한 대체 텍스트 제공 (img) 검사: checkImages', () => {
@@ -626,7 +627,7 @@ describe('7.2.1 사용자 요구에 따른 실행 검사: checkUserRequest', () 
   beforeEach(() => {
     document.body.innerHTML = '';
   });
-  
+
   it('checkUserRequest: window.open이 있는 요소만 결과에 포함되고, 적절한 valid 값이 반환된다', () => {
     document.body.innerHTML = `
       <a href="http://naver.com" onclick="window.open(this.href);return false;">링크</a>
@@ -709,5 +710,427 @@ describe('7.3.2 레이블 제공 검사: checkInputLabels', () => {
     document.body.innerHTML = `<label>부모<input id="d"></label>`;
     const results = checkInputLabels();
     expect(results[0].valid).toBe('pass');
+  });
+});
+
+describe('8.2.1 웹 애플리케이션 접근성 준수: checkWebApplication', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  describe('탭 인터페이스 검사', () => {
+    it('tablist 내부에 tab이 없으면 fail', () => {
+      document.body.innerHTML = `
+        <div role="tablist">
+          <div>일반 요소</div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const tablistResult = results.find((r) => r.interface === 'tablist');
+      expect(tablistResult?.valid).toBe('fail');
+      expect(tablistResult?.issues).toContain('tablist 내부에 tab role이 없음');
+    });
+
+    it('tab이 있지만 tabpanel이 없으면 fail', () => {
+      document.body.innerHTML = `
+        <div role="tablist">
+          <div role="tab" aria-controls="panel1">탭1</div>
+          <div role="tab" aria-controls="panel2">탭2</div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const tablistResult = results.find((r) => r.interface === 'tablist');
+      expect(tablistResult?.valid).toBe('fail');
+      expect(tablistResult?.issues).toContain(
+        'tab role이 있지만 연결된 tabpanel이 없음',
+      );
+    });
+
+    it('tab과 tabpanel의 수가 맞지 않으면 warning', () => {
+      document.body.innerHTML = `
+        <div role="tablist">
+          <div role="tab" aria-controls="panel1">탭1</div>
+          <div role="tab" aria-controls="panel2">탭2</div>
+        </div>
+        <div role="tabpanel" id="panel1">패널1</div>
+      `;
+      const results = checkWebApplication();
+      const tablistResult = results.find((r) => r.interface === 'tablist');
+      expect(tablistResult?.valid).toBe('warning');
+      expect(tablistResult?.issues).toContain(
+        'tab(2)과 연결된 tabpanel(1)의 수가 일치하지 않음',
+      );
+    });
+
+    it('tab과 tabpanel이 올바르게 구성되면 pass', () => {
+      document.body.innerHTML = `
+        <div role="tablist">
+          <div role="tab" aria-controls="panel1">탭1</div>
+          <div role="tab" aria-controls="panel2">탭2</div>
+        </div>
+        <div role="tabpanel" id="panel1">패널1</div>
+        <div role="tabpanel" id="panel2">패널2</div>
+      `;
+      const results = checkWebApplication();
+      const tablistResult = results.find((r) => r.interface === 'tablist');
+      expect(tablistResult?.valid).toBe('pass');
+      expect(tablistResult?.tabs).toBe(2);
+      expect(tablistResult?.tabpanels).toBe(2);
+    });
+  });
+
+  describe('메뉴 인터페이스 검사', () => {
+    it('menubar 내부에 menuitem이 없으면 fail', () => {
+      document.body.innerHTML = `
+        <div role="menubar">
+          <div>일반 요소</div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const menubarResult = results.find((r) => r.interface === 'menubar');
+      expect(menubarResult?.valid).toBe('fail');
+      expect(menubarResult?.issues).toContain(
+        'menu/menubar 내부에 menuitem이 없음',
+      );
+    });
+
+    it('menu 내부에 menuitem이 있으면 pass', () => {
+      document.body.innerHTML = `
+        <div role="menu">
+          <div role="menuitem">메뉴1</div>
+          <div role="menuitem">메뉴2</div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const menuResult = results.find((r) => r.interface === 'menu');
+      expect(menuResult?.valid).toBe('pass');
+      expect(menuResult?.menuitems).toBe(2);
+    });
+
+    it('menuitemcheckbox와 menuitemradio도 인식한다', () => {
+      document.body.innerHTML = `
+        <div role="menu">
+          <div role="menuitemcheckbox">체크박스 메뉴</div>
+          <div role="menuitemradio">라디오 메뉴</div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const menuResult = results.find((r) => r.interface === 'menu');
+      expect(menuResult?.valid).toBe('pass');
+      expect(menuResult?.menuitemcheckboxes).toBe(1);
+      expect(menuResult?.menuitemradios).toBe(1);
+    });
+  });
+
+  describe('콤보 박스 인터페이스 검사', () => {
+    it('combobox 내부에 listbox가 없으면 fail', () => {
+      document.body.innerHTML = `
+        <div role="combobox">
+          <input type="text" />
+        </div>
+      `;
+      const results = checkWebApplication();
+      const comboboxResult = results.find((r) => r.interface === 'combobox');
+      expect(comboboxResult?.valid).toBe('fail');
+      expect(comboboxResult?.issues).toContain(
+        'combobox 내부에 listbox가 없음',
+      );
+    });
+
+    it('listbox가 있지만 option이 없으면 fail', () => {
+      document.body.innerHTML = `
+        <div role="combobox">
+          <input type="text" />
+          <div role="listbox">
+            <div>일반 요소</div>
+          </div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const comboboxResult = results.find((r) => r.interface === 'combobox');
+      expect(comboboxResult?.valid).toBe('fail');
+      expect(comboboxResult?.issues).toContain(
+        'listbox가 있지만 option이 없음',
+      );
+    });
+
+    it('combobox, listbox, option이 올바르게 구성되면 pass', () => {
+      document.body.innerHTML = `
+        <div role="combobox">
+          <input type="text" />
+          <div role="listbox">
+            <div role="option">옵션1</div>
+            <div role="option">옵션2</div>
+          </div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const comboboxResult = results.find((r) => r.interface === 'combobox');
+      expect(comboboxResult?.valid).toBe('pass');
+      expect(comboboxResult?.hasListbox).toBe(true);
+      expect(comboboxResult?.options).toBe(2);
+    });
+  });
+
+  describe('그리드/표 인터페이스 검사', () => {
+    it('grid 내부에 row가 없으면 fail', () => {
+      document.body.innerHTML = `
+        <div role="grid">
+          <div>일반 요소</div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const gridResult = results.find((r) => r.interface === 'grid');
+      expect(gridResult?.valid).toBe('fail');
+      expect(gridResult?.issues).toContain('grid/table 내부에 row가 없음');
+    });
+
+    it('row가 있지만 cell이 없으면 fail', () => {
+      document.body.innerHTML = `
+        <div role="grid">
+          <div role="row">
+            <div>일반 요소</div>
+          </div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const gridResult = results.find((r) => r.interface === 'grid');
+      expect(gridResult?.valid).toBe('fail');
+      expect(gridResult?.issues).toContain('row가 있지만 cell이 없음');
+    });
+
+    it('grid가 올바르게 구성되면 pass', () => {
+      document.body.innerHTML = `
+        <div role="grid">
+          <div role="row">
+            <div role="columnheader">헤더1</div>
+            <div role="columnheader">헤더2</div>
+          </div>
+          <div role="row">
+            <div role="cell">셀1</div>
+            <div role="cell">셀2</div>
+          </div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const gridResult = results.find((r) => r.interface === 'grid');
+      expect(gridResult?.valid).toBe('pass');
+      expect(gridResult?.rows).toBe(2);
+      expect(gridResult?.cells).toBe(2);
+      expect(gridResult?.columnheaders).toBe(2);
+    });
+
+    it('table role도 동일하게 검사한다', () => {
+      document.body.innerHTML = `
+        <div role="table">
+          <div role="row">
+            <div role="rowheader">행헤더</div>
+            <div role="cell">셀</div>
+          </div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const tableResult = results.find((r) => r.interface === 'table');
+      expect(tableResult?.valid).toBe('pass');
+      expect(tableResult?.rowheaders).toBe(1);
+    });
+  });
+
+  describe('트리 뷰 인터페이스 검사', () => {
+    it('tree 내부에 treeitem이 없으면 fail', () => {
+      document.body.innerHTML = `
+        <div role="tree">
+          <div>일반 요소</div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const treeResult = results.find((r) => r.interface === 'tree');
+      expect(treeResult?.valid).toBe('fail');
+      expect(treeResult?.issues).toContain('tree 내부에 treeitem이 없음');
+    });
+
+    it('tree가 올바르게 구성되면 pass', () => {
+      document.body.innerHTML = `
+        <div role="tree">
+          <div role="treeitem">아이템1</div>
+          <div role="group">
+            <div role="treeitem">아이템2</div>
+          </div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const treeResult = results.find((r) => r.interface === 'tree');
+      expect(treeResult?.valid).toBe('pass');
+      expect(treeResult?.treeitems).toBe(2);
+      expect(treeResult?.groups).toBe(1);
+    });
+  });
+
+  describe('다이얼로그 인터페이스 검사', () => {
+    it('dialog에 제목이 없으면 fail', () => {
+      document.body.innerHTML = `
+        <div role="dialog">
+          <div>내용</div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const dialogResult = results.find((r) => r.interface === 'dialog');
+      expect(dialogResult?.valid).toBe('fail');
+      expect(dialogResult?.issues).toContain(
+        'dialog에 제목(aria-labelledby, aria-label, heading)이 없음',
+      );
+    });
+
+    it('aria-labelledby가 있으면 pass', () => {
+      document.body.innerHTML = `
+        <div role="dialog" aria-labelledby="dialog-title">
+          <h2 id="dialog-title">다이얼로그 제목</h2>
+          <div>내용</div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const dialogResult = results.find((r) => r.interface === 'dialog');
+      expect(dialogResult?.valid).toBe('pass');
+      expect(dialogResult?.hasTitle).toBe(true);
+    });
+
+    it('aria-label이 있으면 pass', () => {
+      document.body.innerHTML = `
+        <div role="dialog" aria-label="다이얼로그 제목">
+          <div>내용</div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const dialogResult = results.find((r) => r.interface === 'dialog');
+      expect(dialogResult?.valid).toBe('pass');
+    });
+
+    it('heading role이 있으면 pass', () => {
+      document.body.innerHTML = `
+        <div role="dialog">
+          <div role="heading">다이얼로그 제목</div>
+          <div>내용</div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const dialogResult = results.find((r) => r.interface === 'dialog');
+      expect(dialogResult?.valid).toBe('pass');
+    });
+
+    it('alertdialog도 동일하게 검사한다', () => {
+      document.body.innerHTML = `
+        <div role="alertdialog" aria-label="알림">
+          <div>내용</div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const alertdialogResult = results.find(
+        (r) => r.interface === 'alertdialog',
+      );
+      expect(alertdialogResult?.valid).toBe('pass');
+    });
+  });
+
+  describe('툴바 인터페이스 검사', () => {
+    it('toolbar 내부에 상호작용 요소가 없으면 fail', () => {
+      document.body.innerHTML = `
+        <div role="toolbar">
+          <div>일반 요소</div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const toolbarResult = results.find((r) => r.interface === 'toolbar');
+      expect(toolbarResult?.valid).toBe('fail');
+      expect(toolbarResult?.issues).toContain(
+        'toolbar 내부에 상호작용 요소(button, link, input)가 없음',
+      );
+    });
+
+    it('button이 있으면 pass', () => {
+      document.body.innerHTML = `
+        <div role="toolbar">
+          <button>버튼1</button>
+          <button>버튼2</button>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const toolbarResult = results.find((r) => r.interface === 'toolbar');
+      expect(toolbarResult?.valid).toBe('pass');
+      expect(toolbarResult?.buttons).toBe(2);
+    });
+
+    it('link가 있으면 pass', () => {
+      document.body.innerHTML = `
+        <div role="toolbar">
+          <a href="#">링크1</a>
+          <a href="#">링크2</a>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const toolbarResult = results.find((r) => r.interface === 'toolbar');
+      expect(toolbarResult?.valid).toBe('pass');
+      expect(toolbarResult?.links).toBe(2);
+    });
+
+    it('input이 있으면 pass', () => {
+      document.body.innerHTML = `
+        <div role="toolbar">
+          <input type="text" />
+          <input type="button" value="버튼" />
+        </div>
+      `;
+      const results = checkWebApplication();
+      const toolbarResult = results.find((r) => r.interface === 'toolbar');
+      expect(toolbarResult?.valid).toBe('pass');
+      expect(toolbarResult?.inputs).toBe(2);
+    });
+
+    it('role="button"도 인식한다', () => {
+      document.body.innerHTML = `
+        <div role="toolbar">
+          <div role="button">버튼</div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      const toolbarResult = results.find((r) => r.interface === 'toolbar');
+      expect(toolbarResult?.valid).toBe('pass');
+      expect(toolbarResult?.buttons).toBe(1);
+    });
+  });
+
+  describe('복합 인터페이스 검사', () => {
+    it('여러 인터페이스가 동시에 존재할 때 모두 검사한다', () => {
+      document.body.innerHTML = `
+        <div role="tablist">
+          <div role="tab" aria-controls="panel1">탭1</div>
+        </div>
+        <div role="tabpanel" id="panel1">패널1</div>
+        <div role="menu">
+          <div role="menuitem">메뉴1</div>
+        </div>
+        <div role="dialog" aria-label="다이얼로그">
+          <div>내용</div>
+        </div>
+      `;
+      const results = checkWebApplication();
+      expect(results.length).toBe(3);
+
+      const tablistResult = results.find((r) => r.interface === 'tablist');
+      const menuResult = results.find((r) => r.interface === 'menu');
+      const dialogResult = results.find((r) => r.interface === 'dialog');
+
+      expect(tablistResult?.valid).toBe('pass');
+      expect(menuResult?.valid).toBe('pass');
+      expect(dialogResult?.valid).toBe('pass');
+    });
+
+    it('인터페이스가 없으면 빈 배열을 반환한다', () => {
+      document.body.innerHTML = `
+        <div>일반 요소</div>
+        <span>일반 텍스트</span>
+      `;
+      const results = checkWebApplication();
+      expect(results.length).toBe(0);
+    });
   });
 });
