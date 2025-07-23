@@ -122,6 +122,10 @@
             <a href="#section-images" class="nav-item<%= hasInvalidImages ? ' invalid' : '' %>">
               5.1.1 적절한 대체 텍스트 제공 (img) - <%= validImages.length %> / <%= images.length %><%= imagePercentage !== null ? ` (${imagePercentage}%)` : '' %>
             </a>
+          <% } else { %>
+            <a href="#section-images" class="nav-item">
+              5.1.1 적절한 대체 텍스트 제공 (img) - 없음
+            </a>
           <% } %>
           
           <% if (bgImages && bgImages.length > 0) { %>
@@ -130,6 +134,10 @@
             %>
             <a href="#section-bg-images" class="nav-item">
               5.1.1 적절한 대체 텍스트 제공 (bg) - <%= bgImages.length %>
+            </a>
+          <% } else { %>
+            <a href="#section-bg-images" class="nav-item">
+              5.1.1 적절한 대체 텍스트 제공 (bg) - 없음
             </a>
           <% } %>
 
@@ -146,6 +154,10 @@
             %>
             <a href="#section-tables" class="nav-item<%= hasInvalidTables ? ' invalid' : '' %>">
               5.3.1 표의 구성 - <%= validTables.length %> / <%= tables.length %> (<%= tables.length > 0 ? Math.round((validTables.length / tables.length) * 100) : 0 %>%)
+            </a>
+          <% } else { %>
+            <a href="#section-tables" class="nav-item">
+              5.3.1 표의 구성 - 없음
             </a>
           <% } %>
 
@@ -181,6 +193,10 @@
             <a href="#section-focus" class="nav-item invalid">
               6.1.2 초점 이동과 표시 - <%= focus.length %> Error(s).
             </a>
+          <% } else { %>
+            <a href="#section-focus" class="nav-item">
+              6.1.2 초점 이동과 표시 - 없음
+            </a>
           <% } %>
 
           <!--
@@ -212,11 +228,19 @@
             <a href="#section-skip-nav" class="nav-item<%= hasInvalidSkipNavs ? ' invalid' : '' %>">
               6.4.1 반복 영역 건너뛰기 - <%= connectedSkipNavs.length %> / <%= skipNavigations.length %><%= skipNavPercentage !== null ? ` (${skipNavPercentage}%)` : '' %>
             </a>
+          <% } else { %>
+            <a href="#section-skip-nav" class="nav-item">
+              6.4.1 반복 영역 건너뛰기 - 없음
+            </a>
           <% } %>
           
           <% if (pageTitle && typeof pageTitle.valid !== 'undefined') { %>
             <a href="#section-page-title" class="nav-item<%= pageTitle.valid !== 'pass' ? ' invalid' : '' %>">
               6.4.2 제목 제공 - 페이지 - <%= pageTitle.valid === 'pass' ? '1' : '0' %> / 1 <%= pageTitle.valid === 'pass' ? '(100%)' : '(0%)' %>
+            </a>
+          <% } else { %>
+            <a href="#section-page-title" class="nav-item">
+              6.4.2 제목 제공 - 페이지 - 없음
             </a>
           <% } %>
           
@@ -229,11 +253,19 @@
             <a href="#section-frames" class="nav-item<%= hasInvalidFrames ? ' invalid' : '' %>">
               6.4.2 제목 제공 - 프레임 - <%= validFrames.length %> / <%= frames.length %><%= framePercentage !== null ? ` (${framePercentage}%)` : '' %>
             </a>
+          <% } else { %>
+            <a href="#section-frames" class="nav-item">
+              6.4.2 제목 제공 - 프레임 - 없음
+            </a>
           <% } %>
           
           <% if (headings && headings.length > 0) { %>
             <a href="#section-headings" class="nav-item<%= headings.length === 0 ? ' invalid' : '' %>">
               6.4.2 제목 제공 - 콘텐츠 블록 - <%= headings.length %> (<% if (headings.length > 0) { %>O<% } else { %>X<% } %>)
+            </a>
+          <% } else { %>
+            <a href="#section-headings" class="nav-item">
+              6.4.2 제목 제공 - 콘텐츠 블록 - 없음
             </a>
           <% } %>
 
@@ -269,6 +301,10 @@
             <a href="#section-page-lang" class="nav-item<%= hasInvalidPageLang ? ' invalid' : '' %>">
               7.1.1 기본 언어 표시 - <%= validPageLang.length %> / <%= pageLang.length %> (<%= Math.round((validPageLang.length / pageLang.length) * 100) %>%)
             </a>
+          <% } else { %>
+            <a href="#section-page-lang" class="nav-item">
+              7.1.1 기본 언어 표시 - 없음
+            </a>
           <% } %>
 
           <% if (userRequest && userRequest.length > 0) { %>
@@ -278,6 +314,10 @@
             %>
             <a href="#section-user-request" class="nav-item<%= hasInvalidUserRequest ? ' invalid' : '' %>">
               7.2.1 사용자 요구에 따른 실행 - <%= validUserRequest.length %> / <%= userRequest.length %> (<%= Math.round((validUserRequest.length / userRequest.length) * 100) %>%)
+            </a>
+          <% } else { %>
+            <a href="#section-user-request" class="nav-item">
+              7.2.1 사용자 요구에 따른 실행 - 없음
             </a>
           <% } %>
 
@@ -297,6 +337,10 @@
             %>
             <a href="#section-input-labels" class="nav-item<%= hasInvalidLabels ? ' invalid' : '' %>">
               7.3.2 레이블 제공 - <%= validLabels.length %> / <%= inputLabels.length %><%= labelPercentage !== null ? ` (${labelPercentage}%)` : '' %>
+            </a>
+          <% } else { %>
+            <a href="#section-input-labels" class="nav-item">
+              7.3.2 레이블 제공 - 없음
             </a>
           <% } %>
 
@@ -320,15 +364,19 @@
             <a href="#section-web-application" class="nav-item<%= hasInvalidWebApps ? ' invalid' : '' %>">
               8.2.1 웹 애플리케이션 접근성 준수 - <%= validWebApps.length %> / <%= webApplication.length %> (<%= Math.round((validWebApps.length / webApplication.length) * 100) %>%)
             </a>
+          <% } else { %>
+            <a href="#section-web-application" class="nav-item">
+              8.2.1 웹 애플리케이션 접근성 준수 - 없음
+            </a>
           <% } %>
         </nav>
       <% } %>
     </div>
 
     <div class="main-content">
-      <% if (images) { %>
-        <div id="section-images" class="section">
-          <h2>5.1.1 적절한 대체 텍스트 제공 (img)</h2>
+      <div id="section-images" class="section">
+        <h2>5.1.1 적절한 대체 텍스트 제공 (img)</h2>
+        <% if (images && images.length > 0) { %>
           <div style="margin: 0 0 10px 0; font-weight: bold;">총 이미지 수: <%= images.length %></div>
           <table class="result-table">
             <tr>
@@ -351,12 +399,16 @@
               </tr>
             <% }) %>
           </table>
-        </div>
-      <% } %>
+        <% } else { %>
+          <div style="padding: 20px; text-align: center; color: #666; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+            <p style="margin: 0; font-size: 16px;">검사된 페이지에서 이미지가 발견되지 않았습니다.</p>
+          </div>
+        <% } %>
+      </div>
 
-      <% if (bgImages) { %>
-        <div id="section-bg-images" class="section">
-          <h2>5.1.1 적절한 대체 텍스트 제공 (bg)</h2>
+      <div id="section-bg-images" class="section">
+        <h2>5.1.1 적절한 대체 텍스트 제공 (bg)</h2>
+        <% if (bgImages && bgImages.length > 0) { %>
           <div style="margin: 0 0 10px 0; font-weight: bold;">총 background-image 요소 수: <%= bgImages.length %></div>
           <table class="result-table">
             <tr>
@@ -372,12 +424,16 @@
               </tr>
             <% }) %>
           </table>
-        </div>
-      <% } %>
+        <% } else { %>
+          <div style="padding: 20px; text-align: center; color: #666; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+            <p style="margin: 0; font-size: 16px;">검사된 페이지에서 background-image 요소가 발견되지 않았습니다.</p>
+          </div>
+        <% } %>
+      </div>
 
-      <% if (tables) { %>
-        <div id="section-tables" class="section">
-          <h2>5.3.1 표의 구성</h2>
+      <div id="section-tables" class="section">
+        <h2>5.3.1 표의 구성</h2>
+        <% if (tables && tables.length > 0) { %>
           <table class="result-table">
             <thead>
               <tr>
@@ -412,43 +468,47 @@
               <% }) %>
             </tbody>
           </table>
-        </div>
-      <% } %>
+        <% } else { %>
+          <div style="padding: 20px; text-align: center; color: #666; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+            <p style="margin: 0; font-size: 16px;">검사된 페이지에서 표가 발견되지 않았습니다.</p>
+          </div>
+        <% } %>
+      </div>
 
-      <% if (focus) { %>
-        <div id="section-focus" class="section">
-          <h2>6.1.2 초점 이동과 표시</h2>
+      <div id="section-focus" class="section">
+        <h2>6.1.2 초점 이동과 표시</h2>
+        <% if (focus && focus.length > 0) { %>
           <div style="margin: 0 0 10px 0; font-weight: bold;">총 초점 표시 문제 수: <%= focus.length %></div>
-          <% if (focus.length > 0) { %>
-            <table class="result-table">
-              <thead>
-                <tr>
-                  <th>태그</th>
-                  <th>텍스트</th>
-                  <th>문제 유형</th>
-                  <th>문제 내용</th>
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>태그</th>
+                <th>텍스트</th>
+                <th>문제 유형</th>
+                <th>문제 내용</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% focus.forEach(item => { %>
+                <tr class="<%= item.valid === 'fail' ? 'fail' : '' %>">
+                  <td><%= item.tag %></td>
+                  <td><%= item.text %></td>
+                  <td><%= item.issueType %></td>
+                  <td style="word-break: break-all;"><%= item.issueValue %></td>
                 </tr>
-              </thead>
-              <tbody>
-                <% focus.forEach(item => { %>
-                  <tr class="<%= item.valid === 'fail' ? 'fail' : '' %>">
-                    <td><%= item.tag %></td>
-                    <td><%= item.text %></td>
-                    <td><%= item.issueType %></td>
-                    <td style="word-break: break-all;"><%= item.issueValue %></td>
-                  </tr>
-                <% }) %>
-              </tbody>
-            </table>
-          <% } else { %>
-            <div style="color: green; font-weight: bold;">초점 표시 문제가 발견되지 않았습니다.</div>
-          <% } %>
-        </div>
-      <% } %>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } else { %>
+          <div style="padding: 20px; text-align: center; color: #666; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+            <p style="margin: 0; font-size: 16px;">검사된 페이지에서 초점 표시 문제가 발견되지 않았습니다.</p>
+          </div>
+        <% } %>
+      </div>
 
-      <% if (skipNavigations) { %>
-        <div id="section-skip-nav" class="section">
-          <h2>6.4.1 반복 영역 건너뛰기</h2>
+      <div id="section-skip-nav" class="section">
+        <h2>6.4.1 반복 영역 건너뛰기</h2>
+        <% if (skipNavigations && skipNavigations.length > 0) { %>
           <div style="margin: 0 0 10px 0; font-weight: bold;">총 건너뛰기 링크 수: <%= skipNavigations.length %></div>
           <table class="result-table">
             <tr>
@@ -464,20 +524,28 @@
               </tr>
             <% }) %>
           </table>
-        </div>
-      <% } %>
+        <% } else { %>
+          <div style="padding: 20px; text-align: center; color: #666; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+            <p style="margin: 0; font-size: 16px;">검사된 페이지에서 건너뛰기 링크가 발견되지 않았습니다.</p>
+          </div>
+        <% } %>
+      </div>
 
-      <% if (pageTitle) { %>
-        <div id="section-page-title" class="section">
-          <h2>6.4.2 제목 제공 - 페이지</h2>
+      <div id="section-page-title" class="section">
+        <h2>6.4.2 제목 제공 - 페이지</h2>
+        <% if (pageTitle && typeof pageTitle.valid !== 'undefined') { %>
           <div style="margin: 0 0 10px 0; font-weight: bold;"
             class="<%= pageTitle.valid === 'fail' ? 'fail' : pageTitle.valid === 'warning' ? 'warning' : '' %>">페이지 제목: <%= pageTitle.title %></div>
-        </div>
-      <% } %>
+        <% } else { %>
+          <div style="padding: 20px; text-align: center; color: #666; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+            <p style="margin: 0; font-size: 16px;">페이지 제목 정보를 가져올 수 없습니다.</p>
+          </div>
+        <% } %>
+      </div>
 
-      <% if (frames) { %>
-        <div id="section-frames" class="section">
-          <h2>6.4.2 제목 제공 - 프레임</h2>
+      <div id="section-frames" class="section">
+        <h2>6.4.2 제목 제공 - 프레임</h2>
+        <% if (frames && frames.length > 0) { %>
           <div style="margin: 0 0 10px 0; font-weight: bold;">총 iframe 수: <%= frames.length %></div>
           <table class="result-table">
             <tr>
@@ -493,12 +561,16 @@
               </tr>
             <% }) %>
           </table>
-        </div>
-      <% } %>
+        <% } else { %>
+          <div style="padding: 20px; text-align: center; color: #666; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+            <p style="margin: 0; font-size: 16px;">검사된 페이지에서 iframe이 발견되지 않았습니다.</p>
+          </div>
+        <% } %>
+      </div>
 
-      <% if (headings) { %>
-        <div id="section-headings" class="section">
-          <h2>6.4.2 제목 제공 - 콘텐츠 블록</h2>
+      <div id="section-headings" class="section">
+        <h2>6.4.2 제목 제공 - 콘텐츠 블록</h2>
+        <% if (headings && headings.length > 0) { %>
           <div style="margin: 0 0 10px 0; font-weight: bold;">총 헤딩 수: <%= headings.length %></div>
           <table class="result-table">
             <tr>
@@ -514,12 +586,16 @@
               </tr>
             <% }) %>
           </table>
-        </div>
-      <% } %>
+        <% } else { %>
+          <div style="padding: 20px; text-align: center; color: #666; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+            <p style="margin: 0; font-size: 16px;">검사된 페이지에서 헤딩이 발견되지 않았습니다.</p>
+          </div>
+        <% } %>
+      </div>
 
-      <% if (pageLang) { %>
-        <div id="section-page-lang" class="section">
-          <h2>7.1.1 기본 언어 표시</h2>
+      <div id="section-page-lang" class="section">
+        <h2>7.1.1 기본 언어 표시</h2>
+        <% if (pageLang && pageLang.length > 0) { %>
           <div style="margin: 0 0 10px 0; font-weight: bold;">총 페이지 수: <%= pageLang.length %></div>
           <table class="result-table">
             <thead>
@@ -537,12 +613,16 @@
               <% }) %>
             </tbody>
           </table>
-        </div>
-      <% } %>
+        <% } else { %>
+          <div style="padding: 20px; text-align: center; color: #666; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+            <p style="margin: 0; font-size: 16px;">페이지 언어 정보를 가져올 수 없습니다.</p>
+          </div>
+        <% } %>
+      </div>
 
-      <% if (userRequest) { %>
-        <div id="section-user-request" class="section">
-          <h2>7.2.1 사용자 요구에 따른 실행</h2>
+      <div id="section-user-request" class="section">
+        <h2>7.2.1 사용자 요구에 따른 실행</h2>
+        <% if (userRequest && userRequest.length > 0) { %>
           <div style="margin: 0 0 10px 0; font-weight: bold;">총 사용자 요구 수: <%= userRequest.length %></div>
           <table class="result-table">
             <thead>
@@ -564,12 +644,16 @@
               <% }) %>
             </tbody>
           </table>
-        </div>
-      <% } %>
+        <% } else { %>
+          <div style="padding: 20px; text-align: center; color: #666; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+            <p style="margin: 0; font-size: 16px;">검사된 페이지에서 사용자 요구 요소가 발견되지 않았습니다.</p>
+          </div>
+        <% } %>
+      </div>
 
-      <% if (inputLabels) { %>
-        <section id="section-input-labels" class="section">
-          <h2>7.3.2 레이블 제공</h2>
+      <section id="section-input-labels" class="section">
+        <h2>7.3.2 레이블 제공</h2>
+        <% if (inputLabels && inputLabels.length > 0) { %>
           <div class="stats">
             <div class="stat-item">
               <span class="stat-label">총 입력 필드 수</span>
@@ -602,12 +686,16 @@
               <% }); %>
             </tbody>
           </table>
-        </section>
-      <% } %>
+        <% } else { %>
+          <div style="padding: 20px; text-align: center; color: #666; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+            <p style="margin: 0; font-size: 16px;">검사된 페이지에서 입력 필드가 발견되지 않았습니다.</p>
+          </div>
+        <% } %>
+      </section>
 
-      <% if (webApplication) { %>
-        <section id="section-web-application" class="section">
-          <h2>8.2.1 웹 애플리케이션 접근성 준수</h2>
+      <section id="section-web-application" class="section">
+        <h2>8.2.1 웹 애플리케이션 접근성 준수</h2>
+        <% if (webApplication && webApplication.length > 0) { %>
           <div class="stats">
             <div class="stat-item">
               <span class="stat-label">총 WAI-ARIA 인터페이스 수</span>
@@ -662,8 +750,13 @@
               <% }) %>
             </tbody>
           </table>
-        </section>
-      <% } %>
+        <% } else { %>
+          <div style="padding: 20px; text-align: center; color: #666; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+            <p style="margin: 0; font-size: 16px;">검사된 페이지에서 WAI-ARIA 인터페이스가 발견되지 않았습니다.</p>
+            <p style="margin: 10px 0 0 0; font-size: 14px;">탭, 메뉴, 콤보박스, 그리드, 트리, 다이얼로그, 툴바 등의 WAI-ARIA 역할이 있는 요소가 없습니다.</p>
+          </div>
+        <% } %>
+      </section>
     </div>
   </div>
 
