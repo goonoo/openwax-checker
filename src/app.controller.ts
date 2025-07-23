@@ -55,7 +55,10 @@ export class AppController {
 
   @Get('analyze')
   @Render('index')
-  async analyze(@Query('url') url: string): Promise<{
+  async analyze(
+    @Query('url') url: string,
+    @Query('debug') debug?: string,
+  ): Promise<{
     images: ImageInfo[];
     bgImages: ImageInfo[];
     skipNavigations: SkipNavInfo[];
@@ -69,6 +72,7 @@ export class AppController {
     userRequest: UserRequestInfo[];
     webApplication: WebApplicationInfo[];
     url: string;
+    debugHtml?: string;
   }> {
     if (!url)
       return {
@@ -102,6 +106,12 @@ export class AppController {
       const page = await browser.newPage();
       await page.goto(url, { waitUntil: 'networkidle2', timeout: 3000 });
 
+      // debug 모드일 때 HTML 가져오기
+      let debugHtml: string | undefined;
+      if (debug === '1') {
+        debugHtml = await page.content();
+      }
+
       const images = await extractImagesFromPage(page);
       const bgImages = await extractBgImagesFromPage(page);
       const skipNavigations = await extractSkipNavFromPage(page);
@@ -130,6 +140,7 @@ export class AppController {
         userRequest,
         webApplication,
         url,
+        debugHtml,
       };
     } catch {
       return {
@@ -146,6 +157,7 @@ export class AppController {
         userRequest: [],
         webApplication: [],
         url: url,
+        debugHtml: undefined,
       };
     }
   }
