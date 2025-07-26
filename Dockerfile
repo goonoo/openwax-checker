@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18-slim AS builder
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
@@ -50,8 +50,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install only production dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install dependencies with dev dependencies
+RUN npm ci && npm cache clean --force
 
 # Copy built application from builder stage
 COPY --from=builder --chown=nestjs:nestjs /app/dist ./dist
