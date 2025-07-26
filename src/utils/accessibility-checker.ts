@@ -14,13 +14,22 @@ import {
   checkWebApplication,
 } from 'openwax-rules';
 
+// DOM 타입 정의
+declare global {
+  interface CustomElement {
+    tagName: string;
+  }
+}
+
 export interface ImageInfo {
+  element: CustomElement;
   src: string;
   alt: string | null;
   hidden: boolean;
 }
 
 export interface SkipNavInfo {
+  element: CustomElement;
   label: string;
   value: string;
   connected: boolean;
@@ -28,6 +37,7 @@ export interface SkipNavInfo {
 }
 
 export interface FrameInfo {
+  element: CustomElement;
   label: string;
   value: string;
   contents: string;
@@ -41,6 +51,7 @@ export interface PageTitleInfo {
 }
 
 export interface HeadingInfo {
+  element: CustomElement;
   label: string;
   value: string;
   contents: string;
@@ -49,8 +60,9 @@ export interface HeadingInfo {
 }
 
 export interface InputLabelInfo {
+  element: CustomElement;
   hidden: boolean;
-  element: string;
+  tagName: string;
   type: string;
   valid: string;
   title: string;
@@ -83,12 +95,13 @@ export interface TableInfo {
 }
 
 export interface UserRequestInfo {
-  element: string;
+  element: CustomElement;
   type: string;
   valid: string;
 }
 
 export interface FocusInfo {
+  element: CustomElement;
   tag: string;
   text: string;
   issueType: string;
@@ -99,6 +112,7 @@ export interface FocusInfo {
 }
 
 export interface WebApplicationInfo {
+  element?: CustomElement;
   interface: string;
   index: number;
   valid: 'pass' | 'fail' | 'warning';
@@ -180,7 +194,7 @@ export async function extractFocusFromPage(
   page: puppeteer.Page,
 ): Promise<FocusInfo[]> {
   const focus = await page.evaluate(checkFocus);
-  return focus.filter((item): item is FocusInfo => item !== null);
+  return focus.filter((item) => item !== null) as FocusInfo[];
 }
 
 export async function extractWebApplicationFromPage(

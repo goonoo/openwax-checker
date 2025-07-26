@@ -7,18 +7,19 @@
     .container {
       display: flex;
       min-height: 100vh;
-      padding-top: 70px; /* 검색창 높이 + 패딩 */
+      padding-top: 50px; /* 검색창 높이 + 패딩 */
     }
     .sidebar {
       width: 300px;
-      background: #f5f5f5;
-      padding: 20px;
+      background: #2d2d2d;
+      padding: 0;
       position: fixed;
       height: 100vh;
       overflow-y: auto;
+      color: white;
     }
     .main-content {
-      margin-left: 350px;
+      margin-left: 300px;
       padding: 20px;
       flex: 1;
       box-sizing: border-box;
@@ -36,23 +37,60 @@
     .result-table img { max-width: 80px; max-height: 80px; }
     .fail { background: #ffe5e5; } /* 연한 빨간색 */
     .warning { background: #fffbe5; } /* 연한 노란색 */
+    .sidebar-header {
+      padding: 8px 7px;
+      border-bottom: 1px solid #555;
+    }
+    .sidebar-header h1 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+      color: white;
+    }
+    .sidebar-url {
+      font-size: 11px;
+      padding: 8px 7px;
+      background: #fff;
+      color: #666;
+      word-break: break-all;
+    }
     .nav-item {
-      display: block;
-      padding: 10px;
-      margin: 5px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #2d2d2d;
+      margin-bottom: 1px;
+      border-bottom: 1px solid #444;
+      padding: 7px 10px;
+      background: #2d2d2d;
+      font-size: 13px;
+      cursor: pointer;
+      color: #ffffff;
       text-decoration: none;
-      color: #333;
-      border-radius: 4px;
+    }
+    .nav-item:nth-child(even) {
+      background: #2d2d2d;
     }
     .nav-item:hover {
-      background: #e0e0e0;
+      background: #505050;
     }
     .nav-item.invalid {
-      color: #fff;
+      color: white;
+      background: rgb(221,30,30);
+    }
+    .nav-item.invalid:nth-child(even) {
       background: rgb(221,30,30);
     }
     .nav-item.active {
       border-left: 5px solid #007bff;
+    }
+    .nav-item-text {
+      flex: 1;
+      text-align: left;
+    }
+    .nav-item-score {
+      text-align: right;
+      font-weight: bold;
     }
     .section {
       scroll-margin-top: 80px; /* 검색창 높이 + 여백 */
@@ -63,7 +101,8 @@
       left: 0;
       right: 0;
       background: #fff;
-      padding: 15px;
+      height: 30px;
+      padding: 10px 15px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       z-index: 1000;
     }
@@ -75,12 +114,12 @@
     }
     .search-container input {
       flex: 1;
-      padding: 8px 12px;
-      border: 1px solid #ddd;
+      padding: 6px 12px;
+      border: 1px solid #bbb;
       border-radius: 4px;
     }
     .search-container button {
-      padding: 8px 20px;
+      padding: 6px 20px;
       background: #007bff;
       color: white;
       border: none;
@@ -95,7 +134,7 @@
 <body>
   <div class="search-container">
     <form class="search" method="GET" action="/analyze">
-      <input type="text" name="url" placeholder="URL을 입력하세요" required />
+      <input type="text" name="url" placeholder="분석할 URL을 입력하세요" required />
       <button type="submit">분석</button>
     </form>
     
@@ -109,8 +148,12 @@
   <div class="container">
     <div class="sidebar">
       <% if (typeof url !== 'undefined' && url) { %>
-        <h1 style="font-size: 1.5em; margin: 20px 0;">웹접근성 분석 결과</h1>
-        <p>URL: <a href="<%= url %>" target="_blank"><%= url %></a></p>
+        <div class="sidebar-header">
+          <h1>target pages</h1>
+        </div>
+        <div class="sidebar-url">
+          <%= url %>
+        </div>
         
         <nav>
           <% if (images && images.length > 0) { %>
@@ -120,11 +163,13 @@
               const hasInvalidImages = validImages.length < images.length;
             %>
             <a href="#section-images" class="nav-item<%= hasInvalidImages ? ' invalid' : '' %>">
-              5.1.1 적절한 대체 텍스트 제공 (img) - <%= validImages.length %> / <%= images.length %><%= imagePercentage !== null ? ` (${imagePercentage}%)` : '' %>
+              <span class="nav-item-text">5.1.1 적절한 대체 텍스트 제공 (img)</span>
+              <span class="nav-item-score"><%= validImages.length %> / <%= images.length %><%= imagePercentage !== null ? ` (${imagePercentage}%)` : '' %></span>
             </a>
           <% } else { %>
             <a href="#section-images" class="nav-item">
-              5.1.1 적절한 대체 텍스트 제공 (img) - 없음
+              <span class="nav-item-text">5.1.1 적절한 대체 텍스트 제공 (img)</span>
+              <span class="nav-item-score">없음</span>
             </a>
           <% } %>
           
@@ -133,11 +178,13 @@
               const hasInvalidBgImages = bgImages.some(bg => !bg.alt || bg.alt === '');
             %>
             <a href="#section-bg-images" class="nav-item">
-              5.1.1 적절한 대체 텍스트 제공 (bg) - <%= bgImages.length %>
+              <span class="nav-item-text">5.1.1 적절한 대체 텍스트 제공 (bg)</span>
+              <span class="nav-item-score"><%= bgImages.length %></span>
             </a>
           <% } else { %>
             <a href="#section-bg-images" class="nav-item">
-              5.1.1 적절한 대체 텍스트 제공 (bg) - 없음
+              <span class="nav-item-text">5.1.1 적절한 대체 텍스트 제공 (bg)</span>
+              <span class="nav-item-score">없음</span>
             </a>
           <% } %>
 
@@ -153,11 +200,13 @@
               const hasInvalidTables = validTables.length < tables.length;
             %>
             <a href="#section-tables" class="nav-item<%= hasInvalidTables ? ' invalid' : '' %>">
-              5.3.1 표의 구성 - <%= validTables.length %> / <%= tables.length %> (<%= tables.length > 0 ? Math.round((validTables.length / tables.length) * 100) : 0 %>%)
+              <span class="nav-item-text">5.3.1 표의 구성</span>
+              <span class="nav-item-score"><%= validTables.length %> / <%= tables.length %> (<%= tables.length > 0 ? Math.round((validTables.length / tables.length) * 100) : 0 %>%)</span>
             </a>
           <% } else { %>
             <a href="#section-tables" class="nav-item">
-              5.3.1 표의 구성 - 없음
+              <span class="nav-item-text">5.3.1 표의 구성</span>
+              <span class="nav-item-score">없음</span>
             </a>
           <% } %>
 
@@ -191,11 +240,13 @@
 
           <% if (focus && focus.length > 0) { %>
             <a href="#section-focus" class="nav-item invalid">
-              6.1.2 초점 이동과 표시 - <%= focus.length %> Error(s).
+              <span class="nav-item-text">6.1.2 초점 이동과 표시</span>
+              <span class="nav-item-score"><%= focus.length %> Error(s)</span>
             </a>
           <% } else { %>
             <a href="#section-focus" class="nav-item">
-              6.1.2 초점 이동과 표시 - 없음
+              <span class="nav-item-text">6.1.2 초점 이동과 표시</span>
+              <span class="nav-item-score">없음</span>
             </a>
           <% } %>
 
@@ -226,21 +277,25 @@
               const hasInvalidSkipNavs = connectedSkipNavs.length < skipNavigations.length;
             %>
             <a href="#section-skip-nav" class="nav-item<%= hasInvalidSkipNavs ? ' invalid' : '' %>">
-              6.4.1 반복 영역 건너뛰기 - <%= connectedSkipNavs.length %> / <%= skipNavigations.length %><%= skipNavPercentage !== null ? ` (${skipNavPercentage}%)` : '' %>
+              <span class="nav-item-text">6.4.1 반복 영역 건너뛰기</span>
+              <span class="nav-item-score"><%= connectedSkipNavs.length %> / <%= skipNavigations.length %><%= skipNavPercentage !== null ? ` (${skipNavPercentage}%)` : '' %></span>
             </a>
           <% } else { %>
             <a href="#section-skip-nav" class="nav-item">
-              6.4.1 반복 영역 건너뛰기 - 없음
+              <span class="nav-item-text">6.4.1 반복 영역 건너뛰기</span>
+              <span class="nav-item-score">없음</span>
             </a>
           <% } %>
           
           <% if (pageTitle && typeof pageTitle.valid !== 'undefined') { %>
             <a href="#section-page-title" class="nav-item<%= pageTitle.valid !== 'pass' ? ' invalid' : '' %>">
-              6.4.2 제목 제공 - 페이지 - <%= pageTitle.valid === 'pass' ? '1' : '0' %> / 1 <%= pageTitle.valid === 'pass' ? '(100%)' : '(0%)' %>
+              <span class="nav-item-text">6.4.2 제목 제공 - 페이지</span>
+              <span class="nav-item-score"><%= pageTitle.valid === 'pass' ? '1' : '0' %> / 1 <%= pageTitle.valid === 'pass' ? '(100%)' : '(0%)' %></span>
             </a>
           <% } else { %>
             <a href="#section-page-title" class="nav-item">
-              6.4.2 제목 제공 - 페이지 - 없음
+              <span class="nav-item-text">6.4.2 제목 제공 - 페이지</span>
+              <span class="nav-item-score">없음</span>
             </a>
           <% } %>
           
@@ -251,21 +306,25 @@
               const hasInvalidFrames = validFrames.length < frames.length;
             %>
             <a href="#section-frames" class="nav-item<%= hasInvalidFrames ? ' invalid' : '' %>">
-              6.4.2 제목 제공 - 프레임 - <%= validFrames.length %> / <%= frames.length %><%= framePercentage !== null ? ` (${framePercentage}%)` : '' %>
+              <span class="nav-item-text">6.4.2 제목 제공 - 프레임</span>
+              <span class="nav-item-score"><%= validFrames.length %> / <%= frames.length %><%= framePercentage !== null ? ` (${framePercentage}%)` : '' %></span>
             </a>
           <% } else { %>
             <a href="#section-frames" class="nav-item">
-              6.4.2 제목 제공 - 프레임 - 없음
+              <span class="nav-item-text">6.4.2 제목 제공 - 프레임</span>
+              <span class="nav-item-score">없음</span>
             </a>
           <% } %>
           
           <% if (headings && headings.length > 0) { %>
             <a href="#section-headings" class="nav-item<%= headings.length === 0 ? ' invalid' : '' %>">
-              6.4.2 제목 제공 - 콘텐츠 블록 - <%= headings.length %> (<% if (headings.length > 0) { %>O<% } else { %>X<% } %>)
+              <span class="nav-item-text">6.4.2 제목 제공 - 콘텐츠 블록</span>
+              <span class="nav-item-score"><%= headings.length %> (<% if (headings.length > 0) { %>O<% } else { %>X<% } %>)</span>
             </a>
           <% } else { %>
             <a href="#section-headings" class="nav-item">
-              6.4.2 제목 제공 - 콘텐츠 블록 - 없음
+              <span class="nav-item-text">6.4.2 제목 제공 - 콘텐츠 블록</span>
+              <span class="nav-item-score">없음</span>
             </a>
           <% } %>
 
@@ -299,11 +358,13 @@
               const hasInvalidPageLang = validPageLang.length < pageLang.length;
             %>
             <a href="#section-page-lang" class="nav-item<%= hasInvalidPageLang ? ' invalid' : '' %>">
-              7.1.1 기본 언어 표시 - <%= validPageLang.length %> / <%= pageLang.length %> (<%= Math.round((validPageLang.length / pageLang.length) * 100) %>%)
+              <span class="nav-item-text">7.1.1 기본 언어 표시</span>
+              <span class="nav-item-score"><%= validPageLang.length %> / <%= pageLang.length %> (<%= Math.round((validPageLang.length / pageLang.length) * 100) %>%)</span>
             </a>
           <% } else { %>
             <a href="#section-page-lang" class="nav-item">
-              7.1.1 기본 언어 표시 - 없음
+              <span class="nav-item-text">7.1.1 기본 언어 표시</span>
+              <span class="nav-item-score">없음</span>
             </a>
           <% } %>
 
@@ -313,11 +374,13 @@
               const hasInvalidUserRequest = validUserRequest.length < userRequest.length;
             %>
             <a href="#section-user-request" class="nav-item<%= hasInvalidUserRequest ? ' invalid' : '' %>">
-              7.2.1 사용자 요구에 따른 실행 - <%= validUserRequest.length %> / <%= userRequest.length %> (<%= Math.round((validUserRequest.length / userRequest.length) * 100) %>%)
+              <span class="nav-item-text">7.2.1 사용자 요구에 따른 실행</span>
+              <span class="nav-item-score"><%= validUserRequest.length %> / <%= userRequest.length %> (<%= Math.round((validUserRequest.length / userRequest.length) * 100) %>%)</span>
             </a>
           <% } else { %>
             <a href="#section-user-request" class="nav-item">
-              7.2.1 사용자 요구에 따른 실행 - 없음
+              <span class="nav-item-text">7.2.1 사용자 요구에 따른 실행</span>
+              <span class="nav-item-score">없음</span>
             </a>
           <% } %>
 
@@ -336,11 +399,13 @@
               const hasInvalidLabels = validLabels.length < inputLabels.length;
             %>
             <a href="#section-input-labels" class="nav-item<%= hasInvalidLabels ? ' invalid' : '' %>">
-              7.3.2 레이블 제공 - <%= validLabels.length %> / <%= inputLabels.length %><%= labelPercentage !== null ? ` (${labelPercentage}%)` : '' %>
+              <span class="nav-item-text">7.3.2 레이블 제공</span>
+              <span class="nav-item-score"><%= validLabels.length %> / <%= inputLabels.length %><%= labelPercentage !== null ? ` (${labelPercentage}%)` : '' %></span>
             </a>
           <% } else { %>
             <a href="#section-input-labels" class="nav-item">
-              7.3.2 레이블 제공 - 없음
+              <span class="nav-item-text">7.3.2 레이블 제공</span>
+              <span class="nav-item-score">없음</span>
             </a>
           <% } %>
 
@@ -362,11 +427,13 @@
               const hasInvalidWebApps = validWebApps.length < webApplication.length;
             %>
             <a href="#section-web-application" class="nav-item<%= hasInvalidWebApps ? ' invalid' : '' %>">
-              8.2.1 웹 애플리케이션 접근성 준수 - <%= validWebApps.length %> / <%= webApplication.length %> (<%= Math.round((validWebApps.length / webApplication.length) * 100) %>%)
+              <span class="nav-item-text">8.2.1 웹 애플리케이션 접근성 준수</span>
+              <span class="nav-item-score"><%= validWebApps.length %> / <%= webApplication.length %> (<%= Math.round((validWebApps.length / webApplication.length) * 100) %>%)</span>
             </a>
           <% } else { %>
             <a href="#section-web-application" class="nav-item">
-              8.2.1 웹 애플리케이션 접근성 준수 - 없음
+              <span class="nav-item-text">8.2.1 웹 애플리케이션 접근성 준수</span>
+              <span class="nav-item-score">없음</span>
             </a>
           <% } %>
         </nav>
@@ -673,10 +740,8 @@
             <tbody>
               <% inputLabels.forEach(label => { %>
                 <tr class="<%= label.valid === 'fail' ? 'fail' : '' %> <%= label.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= label.hidden ? '0.5' : '1' %>;">
-                  <td>
-                    <% if (label.hidden) { %>hidden<% } %>
-                  </td>
-                  <td><%= label.element %></td>
+                  <td><% if (label.hidden) { %>hidden<% } %></td>
+                  <td><%= label.tagName %></td>
                   <td><%= label.type %></td>
                   <td>
                     <% if (label.hasLabel) { %><%= label.label %><% } else { %>X<% } %>
