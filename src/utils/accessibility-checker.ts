@@ -12,7 +12,7 @@ import {
   checkUserRequest,
   checkFocus,
   checkWebApplication,
-} from './rule';
+} from 'openwax-rules';
 
 export interface ImageInfo {
   src: string;
