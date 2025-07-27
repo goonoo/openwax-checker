@@ -140,13 +140,28 @@
     .search-container button:hover {
       background: #0056b3;
     }
+    .report-button {
+      padding: 6px 20px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    .report-button:hover {
+      background: #218838;
+    }
   </style>
 </head>
 <body>
   <div class="search-container">
     <form class="search" method="GET" action="/analyze">
-      <input type="text" name="url" placeholder="분석할 URL을 입력하세요" required />
+      <input type="text" name="url" placeholder="분석할 URL을 입력하세요" required value="<%= url %>" />
       <button type="submit">분석</button>
+      <% if (typeof url !== 'undefined' && url) { %>
+        <button type="button" class="report-button" onclick="generateReport()">보고서 출력</button>
+      <% } %>
     </form>
     
     <% if (typeof debugHtml !== 'undefined' && debugHtml) { %>
@@ -1004,6 +1019,14 @@
         if (form) {
           form.submit();
         }
+      }
+    }
+    
+    // 보고서 출력 함수
+    function generateReport() {
+      const urlInput = document.querySelector('input[name="url"]');
+      if (urlInput && urlInput.value) {
+        window.open(`/report?url=${encodeURIComponent(urlInput.value)}`, '_blank');
       }
     }
     

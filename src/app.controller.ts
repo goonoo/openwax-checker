@@ -161,4 +161,107 @@ export class AppController {
       };
     }
   }
+
+  @Get('report')
+  @Render('report')
+  async generateReport(@Query('url') url: string): Promise<{
+    images: ImageInfo[];
+    bgImages: ImageInfo[];
+    skipNavigations: SkipNavInfo[];
+    pageTitle: PageTitleInfo;
+    frames: FrameInfo[];
+    headings: HeadingInfo[];
+    inputLabels: InputLabelInfo[];
+    pageLang: PageLangInfo[];
+    tables: TableInfo[];
+    focus: FocusInfo[];
+    userRequest: UserRequestInfo[];
+    webApplication: WebApplicationInfo[];
+    url: string;
+    totalPages: number;
+  }> {
+    if (!url) {
+      return {
+        images: [],
+        bgImages: [],
+        skipNavigations: [],
+        pageTitle: { title: '', valid: 'fail' },
+        frames: [],
+        headings: [],
+        inputLabels: [],
+        pageLang: [],
+        tables: [],
+        focus: [],
+        userRequest: [],
+        webApplication: [],
+        url: '',
+        totalPages: 0,
+      };
+    }
+
+    try {
+      // puppeteer 실행 옵션을 환경에 따라 분기
+      const launchOptions: any = {
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+        ],
+      };
+      if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+        launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+      }
+      const browser = await puppeteer.launch(launchOptions);
+      const page = await browser.newPage();
+      await page.goto(url, { waitUntil: 'networkidle2', timeout: 3000 });
+
+      const images = await extractImagesFromPage(page);
+      const bgImages = await extractBgImagesFromPage(page);
+      const skipNavigations = await extractSkipNavFromPage(page);
+      const pageTitle = await extractPageTitleFromPage(page);
+      const frames = await extractFramesFromPage(page);
+      const headings = await extractHeadingsFromPage(page);
+      const inputLabels = await extractInputLabelsFromPage(page);
+      const pageLang = await extractPageLangFromPage(page);
+      const tables = await extractTablesFromPage(page);
+      const focus = await extractFocusFromPage(page);
+      const userRequest = await extractUserRequestFromPage(page);
+      const webApplication = await extractWebApplicationFromPage(page);
+
+      await browser.close();
+      return {
+        images,
+        bgImages,
+        skipNavigations,
+        pageTitle,
+        frames,
+        headings,
+        inputLabels,
+        pageLang,
+        tables,
+        focus,
+        userRequest,
+        webApplication,
+        url,
+        totalPages: 1, // 현재는 단일 페이지만 분석
+      };
+    } catch {
+      return {
+        images: [],
+        bgImages: [],
+        skipNavigations: [],
+        pageTitle: { title: '', valid: 'fail' },
+        frames: [],
+        headings: [],
+        inputLabels: [],
+        pageLang: [],
+        tables: [],
+        focus: [],
+        userRequest: [],
+        webApplication: [],
+        url: url,
+        totalPages: 0,
+      };
+    }
+  }
 }
