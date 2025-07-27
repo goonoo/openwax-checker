@@ -34,6 +34,17 @@
     }
     .result-table { width: 100%; border-collapse: collapse; }
     .result-table th, .result-table td { border: 1px solid #ccc; padding: 8px; }
+    /* 모든 테이블의 첫 번째 열 (td 또는 th) */
+    .result-table th:first-child,
+    .result-table td:first-child {
+      width: 50px;
+    }
+
+    /* 모든 테이블의 두 번째 열 (td 또는 th) */
+    .result-table th:nth-child(2),
+    .result-table td:nth-child(2) {
+      width: 50px;
+    }
     .result-table img { max-width: 80px; max-height: 80px; }
     .fail { background: #ffe5e5; } /* 연한 빨간색 */
     .warning { background: #fffbe5; } /* 연한 노란색 */
@@ -445,6 +456,7 @@
             <div style="margin: 0 0 10px 0; font-weight: bold;">총 이미지 수: <%= images.length %></div>
             <table class="result-table">
               <tr>
+                <th>result</th>
                 <th>hidden</th>
                 <th>이미지</th>
                 <th>대체 텍스트</th>
@@ -453,10 +465,11 @@
                 <% let cellClass = ""; let altText = img.alt; %>
                 <% if (img.alt === null) { cellClass = 'fail'; altText = 'alt 없음'; } %>
                 <% if (img.alt === '') { cellClass = 'warning'; altText = 'alt=""'; } %>
-                <tr class="<%= img.valid === 'fail' ? 'fail' : '' %> <%= img.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= img.hidden ? '0.5' : '1' %>;">
-                  <td class="<%= cellClass %>"><%= img.hidden ? 'hidden' : '' %></td>
-                  <td class="<%= cellClass %>"><img src="<%= img.src %>" /></td>
-                  <td class="<%= cellClass %>"><%= altText %>
+                <tr class="<%= img.valid === 'fail' ? 'fail' : '' %> <%= cellClass %>" style="opacity:<%= img.hidden ? '0.5' : '1' %>;">
+                  <td><%= img.valid %></td>
+                  <td><%= img.hidden ? 'hidden' : '' %></td>
+                  <td><img src="<%= img.src %>" /></td>
+                  <td><%= altText %>
                     <% if (img.longdesc) { %>
                       <br>longdesc: <a href="<%= img.longdesc %>" target="_blank"><%= img.longdesc %></a>
                     <% } %>
@@ -477,12 +490,14 @@
             <div style="margin: 0 0 10px 0; font-weight: bold;">총 background-image 요소 수: <%= bgImages.length %></div>
             <table class="result-table">
               <tr>
+                <th>result</th>
                 <th>hidden</th>
                 <th>이미지</th>
                 <th>대체 텍스트</th>
               </tr>
               <% bgImages.forEach(bg => { %>
-                <tr class="<%= bg.valid === 'fail' ? 'fail' : '' %> <%= bg.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= bg.hidden ? '0.5' : '1' %>;">
+                <tr style="opacity:<%= bg.hidden ? '0.5' : '1' %>;">
+                  <td>-</td>
                   <td><%= bg.hidden ? 'hidden' : '' %></td>
                   <td><div style="width:80px; height:80px; background:url('<%= bg.src %>') center/cover no-repeat; border-radius:6px;"></div></td>
                   <td><%= bg.alt %></td>
@@ -502,32 +517,67 @@
             <table class="result-table">
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>caption</th>
-                  <th>summary</th>
-                  <th>thead</th>
-                  <th>tfoot</th>
-                  <th>tbody</th>
-                  <th>thead 제목셀(scope)</th>
+                  <th>result</th>
+                  <th>hidden</th>
+                  <th>표 구조</th>
                 </tr>
               </thead>
               <tbody>
                 <% tables.forEach((table, idx) => { %>
                   <tr class="<%= table.valid === 'fail' ? 'fail' : '' %> <%= table.valid === 'warning' ? 'warning' : '' %>">
-                    <td><%= idx + 1 %></td>
-                    <td><%= table.caption %></td>
-                    <td><%= table.summary %></td>
-                    <td><%= table.thead ? 'O' : 'X' %></td>
-                    <td><%= table.tfoot ? 'O' : 'X' %></td>
-                    <td><%= table.tbody ? 'O' : 'X' %></td>
+                    <td><%= table.valid %></td>
+                    <td><%= table.hidden ? 'hidden' : '' %></td>
                     <td>
-                      <% table.theadCells.forEach(row => { %>
-                        <% row.forEach(cell => { %>
-                          <% if(cell.tag === 'th') { %>
-                            <div><%= cell.text %> (<%= cell.scope %>)</div>
-                          <% } %>
-                        <% }) %>
-                      <% }) %>
+                      <div>caption: <%= table.caption %></div>
+                      <div>summary: <%= table.summary %></div>
+                      <table class="result-table">
+                        <tr>
+                          <th>요소명</th>
+                          <th>유무</th>
+                          <th>제목셀(scope)</th>
+                        </tr>
+                        <tbody>
+                          <tr>
+                            <td>thead</td>
+                            <td><%= table.thead ? 'O' : 'X' %></td>
+                            <td>
+                              <% table.theadCells.forEach(row => { %>
+                                <% row.forEach(cell => { %>
+                                  <% if(cell.tag === 'th') { %>
+                                    <div><%= cell.text %> (<%= cell.scope || 'X' %>)</div>
+                                  <% } %>
+                                <% }) %>
+                              <% }) %>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>tfoot</td>
+                            <td><%= table.tfoot ? 'O' : 'X' %></td>
+                            <td>
+                              <% table.tfootCells.forEach(row => { %>
+                                <% row.forEach(cell => { %>
+                                  <% if(cell.tag === 'th') { %>
+                                    <div><%= cell.text %> (<%= cell.scope || 'X'%>)</div>
+                                  <% } %>
+                                <% }) %>
+                              <% }) %>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>tbody</td>
+                            <td><%= table.tbody ? 'O' : 'X' %></td>
+                            <td>
+                              <% table.tbodyCells.forEach(row => { %>
+                                <% row.forEach(cell => { %>
+                                  <% if(cell.tag === 'th') { %>
+                                    <div><%= cell.text %> (<%= cell.scope || 'X' %>)</div>
+                                  <% } %>
+                                <% }) %>
+                              <% }) %>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </td>
                   </tr>
                 <% }) %>
@@ -547,19 +597,21 @@
             <table class="result-table">
               <thead>
                 <tr>
-                  <th>태그</th>
-                  <th>텍스트</th>
-                  <th>문제 유형</th>
-                  <th>문제 내용</th>
+                  <th>result</th>
+                  <th>hidden</th>
+                  <th>요소명</th>
+                  <th>에러 타입</th>
+                  <th>내용</th>
                 </tr>
               </thead>
               <tbody>
                 <% focus.forEach(item => { %>
                   <tr class="<%= item.valid === 'fail' ? 'fail' : '' %>">
+                    <td><%= item.valid %></td>
+                    <td><%= item.hidden ? 'hidden' : '' %></td>
                     <td><%= item.tag %></td>
+                    <td><%= item.issueType || 'unknown' %></td>
                     <td><%= item.text %></td>
-                    <td><%= item.issueType %></td>
-                    <td style="word-break: break-all;"><%= item.issueValue %></td>
                   </tr>
                 <% }) %>
               </tbody>
@@ -577,12 +629,16 @@
             <div style="margin: 0 0 10px 0; font-weight: bold;">총 건너뛰기 링크 수: <%= skipNavigations.length %></div>
             <table class="result-table">
               <tr>
-                <th>번호</th>
-                <th>링크</th>
+                <th>result</th>
+                <th>hidden</th>
+                <th>링크 순서</th>
+                <th>링크 내용</th>
                 <th>연결 여부</th>
               </tr>
               <% skipNavigations.forEach(skipNav => { %>
                 <tr class="<%= skipNav.valid === 'fail' ? 'fail' : '' %> <%= skipNav.valid === 'warning' ? 'warning' : '' %>">
+                  <td><%= skipNav.valid %></td>
+                  <td><%= skipNav.hidden ? 'hidden' : '' %></td>
                   <td><%= skipNav.label %></td>
                   <td><%= skipNav.value %></td>
                   <td><%= skipNav.connected ? 'O' : 'X' %></td>
@@ -599,8 +655,22 @@
         <div id="section-page-title" class="section">
           <h2>6.4.2 제목 제공 - 페이지</h2>
           <% if (pageTitle && typeof pageTitle.valid !== 'undefined') { %>
-            <div style="margin: 0 0 10px 0; font-weight: bold;"
-              class="<%= pageTitle.valid === 'fail' ? 'fail' : pageTitle.valid === 'warning' ? 'warning' : '' %>">페이지 제목: <%= pageTitle.title %></div>
+            <table class="result-table">
+              <thead>
+                <tr>
+                  <th>result</th>
+                  <th>hidden</th>
+                  <th>페이지 제목</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="<%= pageTitle.valid === 'fail' ? 'fail' : '' %> <%= pageTitle.valid === 'warning' ? 'warning' : '' %>">
+                  <td><%= pageTitle.valid %></td>
+                  <td><%= pageTitle.hidden ? 'hidden' : '' %></td>
+                  <td><%= pageTitle.title || '제목 없음' %></td>
+                </tr>
+              </tbody>
+            </table>
           <% } else { %>
             <div style="padding: 20px; text-align: center; color: #666; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
               <p style="margin: 0; font-size: 16px;">페이지 제목 정보를 가져올 수 없습니다.</p>
@@ -614,15 +684,17 @@
             <div style="margin: 0 0 10px 0; font-weight: bold;">총 iframe 수: <%= frames.length %></div>
             <table class="result-table">
               <tr>
+                <th>result</th>
                 <th>hidden</th>
-                <th>제목</th>
-                <th>URL</th>
+                <th>프레임 제목</th>
+                <th>프레임 URL</th>
               </tr>
               <% frames.forEach(frame => { %>
                 <tr class="<%= frame.valid === 'fail' ? 'fail' : '' %> <%= frame.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= frame.hidden ? '0.5' : '1' %>;">
-                  <td class="<%= frame.valid === 'fail' ? 'fail' : '' %>"><%= frame.hidden ? 'hidden' : '' %></td>
-                  <td class="<%= frame.valid === 'fail' ? 'fail' : '' %>"><%= frame.value || '제목 없음' %></td>
-                  <td class="<%= frame.valid === 'fail' ? 'fail' : '' %>" style="word-break: break-all;"><%= frame.contents %></td>
+                  <td><%= frame.valid %></td>
+                  <td><%= frame.hidden ? 'hidden' : '' %></td>
+                  <td><%= frame.value || '제목 없음' %></td>
+                  <td style="word-break: break-all;"><%= frame.contents %></td>
                 </tr>
               <% }) %>
             </table>
@@ -639,12 +711,14 @@
             <div style="margin: 0 0 10px 0; font-weight: bold;">총 헤딩 수: <%= headings.length %></div>
             <table class="result-table">
               <tr>
+                <th>result</th>
                 <th>hidden</th>
-                <th>태그</th>
-                <th>제목</th>
+                <th>요소명</th>
+                <th>내용</th>
               </tr>
               <% headings.forEach(heading => { %>
                 <tr class="<%= heading.valid === 'fail' ? 'fail' : '' %> <%= heading.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= heading.hidden ? '0.5' : '1' %>;">
+                  <td><%= heading.valid %></td>
                   <td><%= heading.hidden ? 'hidden' : '' %></td>
                   <td><%= heading.value %></td>
                   <td><%= heading.contents %></td>
@@ -665,13 +739,17 @@
             <table class="result-table">
               <thead>
                 <tr>
-                  <th>URL</th>
-                  <th>Language</th>
+                  <th>result</th>
+                  <th>hidden</th>
+                  <th>페이지 URL</th>
+                  <th>언어 코드</th>
                 </tr>
               </thead>
               <tbody>
                 <% pageLang.forEach(lang => { %>
                   <tr class="<%= lang.valid === 'fail' ? 'fail' : '' %> <%= lang.valid === 'warning' ? 'warning' : '' %>">
+                    <td><%= lang.valid %></td>
+                    <td><%= lang.hidden ? 'hidden' : '' %></td>
                     <td><a href="<%= lang.url %>" target="_blank"><%= lang.url %></a></td>
                     <td><%= lang.lang || '언어 설정 없음' %></td>
                   </tr>
@@ -686,21 +764,25 @@
         </div>
 
         <div id="section-user-request" class="section">
-          <h2>7.2.1 사용자 요구에 따른 실행</h2>
+          <h2>7.2.1 사용자 요구에 따른 실행 - 새 창 링크</h2>
           <% if (userRequest && userRequest.length > 0) { %>
-            <div style="margin: 0 0 10px 0; font-weight: bold;">총 사용자 요구 수: <%= userRequest.length %></div>
+            <div style="margin: 0 0 10px 0; font-weight: bold;">총 새 창 링크 수: <%= userRequest.length %></div>
             <table class="result-table">
               <thead>
                 <tr>
-                  <th>tag</th>
-                  <th>title</th>
-                  <th>target</th>
-                  <th>text</th>
+                  <th>result</th>
+                  <th>hidden</th>
+                  <th>요소명</th>
+                  <th>title 속성</th>
+                  <th>target 속성</th>
+                  <th>텍스트</th>
                 </tr>
               </thead>
               <tbody>
                 <% userRequest.forEach(request => { %>
                   <tr class="<%= request.valid === 'fail' ? 'fail' : '' %> <%= request.valid === 'warning' ? 'warning' : '' %>">
+                    <td><%= request.valid %></td>
+                    <td><%= request.hidden ? 'hidden' : '' %></td>
                     <td><%= request.tag %></td>
                     <td><%= request.title %></td>
                     <td><%= request.target %></td>
@@ -711,7 +793,7 @@
             </table>
           <% } else { %>
             <div style="padding: 20px; text-align: center; color: #666; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
-              <p style="margin: 0; font-size: 16px;">검사된 페이지에서 사용자 요구 요소가 발견되지 않았습니다.</p>
+              <p style="margin: 0; font-size: 16px;">검사된 페이지에서 새 창 링크가 발견되지 않았습니다.</p>
             </div>
           <% } %>
         </div>
@@ -728,16 +810,18 @@
             <table class="result-table">
               <thead>
                 <tr>
+                  <th>result</th>
                   <th>hidden</th>
-                  <th>Element</th>
-                  <th>Type</th>
-                  <th>Label</th>
-                  <th>Title attribute</th>
+                  <th>요소명</th>
+                  <th>타입</th>
+                  <th>레이블</th>
+                  <th>title 속성</th>
                 </tr>
               </thead>
               <tbody>
                 <% inputLabels.forEach(label => { %>
                   <tr class="<%= label.valid === 'fail' ? 'fail' : '' %> <%= label.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= label.hidden ? '0.5' : '1' %>;">
+                    <td><%= label.valid %></td>
                     <td><% if (label.hidden) { %>hidden<% } %></td>
                     <td><%= label.tagName %></td>
                     <td><%= label.type %></td>
@@ -768,7 +852,8 @@
             <table class="result-table">
               <thead>
                 <tr>
-                  <th>#</th>
+                  <th>result</th>
+                  <th>hidden</th>
                   <th>인터페이스</th>
                   <th>상태</th>
                   <th>문제점</th>
@@ -777,8 +862,9 @@
               </thead>
               <tbody>
                 <% webApplication.forEach(app => { %>
-                  <tr class="<%= app.valid === 'fail' ? 'fail' : '' %> <%= app.valid === 'warning' ? 'warning' : '' %>">
-                    <td><%= app.index %></td>
+                  <tr class="<%= app.valid === 'fail' ? 'fail' : '' %> <%= app.valid === 'warning' ? 'warning' : '' %>" style="opacity:<%= app.hidden ? '0.5' : '1' %>;">
+                    <td><%= app.valid %></td>
+                    <td><%= app.hidden ? 'hidden' : '' %></td>
                     <td><%= app.interface %></td>
                     <td><%= app.valid %></td>
                     <td>

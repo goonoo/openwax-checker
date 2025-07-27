@@ -29,7 +29,7 @@
   <div id="qunit-fixture">
     <h2>24. 건너뛰기 링크</h2>
     <a href="#content1">연결된 링크 (id)</a>
-    <a href="#content2">연결된 링크 (name)</a>
+    <a href="#content2" style="display:none">연결된 링크 (name)</a>
     <a href="#content3">연결안된 링크</a>
 
     <div id="content1" customattr1="customattr1"></div>
@@ -38,7 +38,7 @@
     <h2>1. 대체 텍스트</h2>
     <div>
       [IMG] alt X: <img src="i/1.png" width="30"><br>
-      [IMG] alt X: <img src="i/1.png" width="30"><br>
+      [IMG] alt X (hidden): <img src="i/1.png" width="30" style="display:none"><br>
       [IMG] alt 빈값: <img src="i/2.png" width="30" alt=""><br>
       [IMG] alt 있음: <img src="i/3.png" width="30" alt="네이버톡"><br>
       [IMG] alt+longdesc: <img src="i/4.png" width="30" alt="네이버지도" longdesc="longdesc.html"><br>
@@ -215,7 +215,7 @@
     </div>
 
     <h3>탭 인터페이스 (잘못된 구현)</h3>
-    <div role="tablist">
+    <div role="tablist" style="display:none">
       <!-- tab이 없는 tablist -->
       <div>일반 요소</div>
     </div>
