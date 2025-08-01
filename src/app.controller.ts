@@ -90,6 +90,10 @@ export class AppController {
         webApplication: [],
         url: '',
       };
+    
+    let browser: puppeteer.Browser | null = null;
+    let page: puppeteer.Page | null = null;
+    
     try {
       // puppeteer 실행 옵션을 환경에 따라 분기
       const launchOptions: any = {
@@ -102,9 +106,24 @@ export class AppController {
       if (process.env.PUPPETEER_EXECUTABLE_PATH) {
         launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
       }
-      const browser = await puppeteer.launch(launchOptions);
-      const page = await browser.newPage();
-      await page.goto(url, { waitUntil: 'networkidle2', timeout: 3000 });
+      browser = await puppeteer.launch(launchOptions);
+      page = await browser.newPage();
+      
+      // 페이지 타임아웃 설정
+      page.setDefaultTimeout(10000);
+      
+      // DOM이 로드되면 바로 진행, 네트워크 idle은 기다리지 않음
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
+      
+      // 추가 렌더링을 위한 짧은 대기 (최대 3초)
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // 기본 1초 대기
+        // body나 main 컨텐츠가 있는지 확인하고 추가 대기
+        await page.waitForSelector('body', { timeout: 2000 }).catch(() => {});
+      } catch (error) {
+        // 대기 중 에러가 발생해도 계속 진행
+        console.warn('Additional wait failed, proceeding with analysis:', error);
+      }
 
       // debug 모드일 때 HTML 가져오기
       let debugHtml: string | undefined;
@@ -125,7 +144,6 @@ export class AppController {
       const userRequest = await extractUserRequestFromPage(page);
       const webApplication = await extractWebApplicationFromPage(page);
 
-      await browser.close();
       return {
         images,
         bgImages,
@@ -142,7 +160,8 @@ export class AppController {
         url,
         debugHtml,
       };
-    } catch {
+    } catch (error) {
+      console.error('Error in analyze:', error);
       return {
         images: [],
         bgImages: [],
@@ -159,6 +178,22 @@ export class AppController {
         url: url,
         debugHtml: undefined,
       };
+    } finally {
+      // 리소스 정리 보장
+      if (page) {
+        try {
+          await page.close();
+        } catch (error) {
+          console.error('Error closing page:', error);
+        }
+      }
+      if (browser) {
+        try {
+          await browser.close();
+        } catch (error) {
+          console.error('Error closing browser:', error);
+        }
+      }
     }
   }
 
@@ -199,6 +234,9 @@ export class AppController {
       };
     }
 
+    let browser: puppeteer.Browser | null = null;
+    let page: puppeteer.Page | null = null;
+
     try {
       // puppeteer 실행 옵션을 환경에 따라 분기
       const launchOptions: any = {
@@ -211,9 +249,24 @@ export class AppController {
       if (process.env.PUPPETEER_EXECUTABLE_PATH) {
         launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
       }
-      const browser = await puppeteer.launch(launchOptions);
-      const page = await browser.newPage();
-      await page.goto(url, { waitUntil: 'networkidle2', timeout: 3000 });
+      browser = await puppeteer.launch(launchOptions);
+      page = await browser.newPage();
+      
+      // 페이지 타임아웃 설정
+      page.setDefaultTimeout(10000);
+      
+      // DOM이 로드되면 바로 진행, 네트워크 idle은 기다리지 않음
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
+      
+      // 추가 렌더링을 위한 짧은 대기 (최대 3초)
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // 기본 1초 대기
+        // body나 main 컨텐츠가 있는지 확인하고 추가 대기
+        await page.waitForSelector('body', { timeout: 2000 }).catch(() => {});
+      } catch (error) {
+        // 대기 중 에러가 발생해도 계속 진행
+        console.warn('Additional wait failed, proceeding with analysis:', error);
+      }
 
       const images = await extractImagesFromPage(page);
       const bgImages = await extractBgImagesFromPage(page);
@@ -228,7 +281,6 @@ export class AppController {
       const userRequest = await extractUserRequestFromPage(page);
       const webApplication = await extractWebApplicationFromPage(page);
 
-      await browser.close();
       return {
         images,
         bgImages,
@@ -245,7 +297,8 @@ export class AppController {
         url,
         totalPages: 1, // 현재는 단일 페이지만 분석
       };
-    } catch {
+    } catch (error) {
+      console.error('Error in generateReport:', error);
       return {
         images: [],
         bgImages: [],
@@ -262,6 +315,22 @@ export class AppController {
         url: url,
         totalPages: 0,
       };
+    } finally {
+      // 리소스 정리 보장
+      if (page) {
+        try {
+          await page.close();
+        } catch (error) {
+          console.error('Error closing page:', error);
+        }
+      }
+      if (browser) {
+        try {
+          await browser.close();
+        } catch (error) {
+          console.error('Error closing browser:', error);
+        }
+      }
     }
   }
 }
