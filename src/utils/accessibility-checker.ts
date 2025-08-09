@@ -193,8 +193,8 @@ export async function extractUserRequestFromPage(
 export async function extractFocusFromPage(
   page: puppeteer.Page,
 ): Promise<FocusInfo[]> {
-  const focus = await page.evaluate(checkFocus);
-  return focus.filter((item) => item !== null) as FocusInfo[];
+  const focusResult = await page.evaluate(checkFocus);
+  return focusResult.focusIssues.filter((item) => item !== null) as FocusInfo[];
 }
 
 export async function extractWebApplicationFromPage(

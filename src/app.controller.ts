@@ -90,10 +90,10 @@ export class AppController {
         webApplication: [],
         url: '',
       };
-    
+
     let browser: puppeteer.Browser | null = null;
     let page: puppeteer.Page | null = null;
-    
+
     try {
       // puppeteer 실행 옵션을 환경에 따라 분기
       const launchOptions: any = {
@@ -108,21 +108,24 @@ export class AppController {
       }
       browser = await puppeteer.launch(launchOptions);
       page = await browser.newPage();
-      
+
       // 페이지 타임아웃 설정
       page.setDefaultTimeout(10000);
-      
+
       // DOM이 로드되면 바로 진행, 네트워크 idle은 기다리지 않음
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
-      
+
       // 추가 렌더링을 위한 짧은 대기 (최대 3초)
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // 기본 1초 대기
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // 기본 1초 대기
         // body나 main 컨텐츠가 있는지 확인하고 추가 대기
         await page.waitForSelector('body', { timeout: 2000 }).catch(() => {});
       } catch (error) {
         // 대기 중 에러가 발생해도 계속 진행
-        console.warn('Additional wait failed, proceeding with analysis:', error);
+        console.warn(
+          'Additional wait failed, proceeding with analysis:',
+          error,
+        );
       }
 
       // debug 모드일 때 HTML 가져오기
@@ -251,21 +254,24 @@ export class AppController {
       }
       browser = await puppeteer.launch(launchOptions);
       page = await browser.newPage();
-      
+
       // 페이지 타임아웃 설정
       page.setDefaultTimeout(10000);
-      
+
       // DOM이 로드되면 바로 진행, 네트워크 idle은 기다리지 않음
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
-      
+
       // 추가 렌더링을 위한 짧은 대기 (최대 3초)
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // 기본 1초 대기
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // 기본 1초 대기
         // body나 main 컨텐츠가 있는지 확인하고 추가 대기
         await page.waitForSelector('body', { timeout: 2000 }).catch(() => {});
       } catch (error) {
         // 대기 중 에러가 발생해도 계속 진행
-        console.warn('Additional wait failed, proceeding with analysis:', error);
+        console.warn(
+          'Additional wait failed, proceeding with analysis:',
+          error,
+        );
       }
 
       const images = await extractImagesFromPage(page);
